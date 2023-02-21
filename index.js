@@ -7,6 +7,7 @@ import connectDB from "./config/connectDB.js";
 import bodyParser from "body-parser";
 import userRouter from "./routes/user.js";
 import adminRouter from "./routes/admin.js";
+import docterRouter from "./routes/docter.js";
 
 // import bcrypt from "bcrypt";
 // import adminDB from './models/adminModel.js'
@@ -22,7 +23,6 @@ app.use(cors());
 //* Database *//
 connectDB();
 
-
 // const addadmin =  async() => {
 // let password = "123456"
 
@@ -32,16 +32,15 @@ connectDB();
 //  await adminDB.insertMany({
 //     email:email,
 //     password:pass,
-    
+
 //   })
 // }
 //  addadmin()
 
-
-
 //*  ROUTES   *//
 app.use("/", userRouter);
 app.use("/admin", adminRouter);
+app.use("/docter", docterRouter);
 
 //*Port Connect *//
 app.listen(

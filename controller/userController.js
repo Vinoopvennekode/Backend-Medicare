@@ -7,7 +7,7 @@ const userSignup = async (req, res) => {
     const { name, email, phoneNumber, password } = req.body;
     if (name && email && phoneNumber && password) {
       const user = await UserModel.find({ email: email });
-      console.log(user);
+
       if (user.length === 0) {
         const salt = await bcrypt.genSalt();
         const hashedPassword = await bcrypt.hash(password, salt);
@@ -21,11 +21,9 @@ const userSignup = async (req, res) => {
         res.json({ status: "success", message: "signup success" }).Status(200);
       } else {
         res.json({ status: "failed", message: "user already exist" });
-        console.log("user already exist");
       }
     } else {
       res.json({ status: "failed", message: "fill all column" });
-      console.log("fill all column");
     }
   } catch (error) {
     console.log(error);
