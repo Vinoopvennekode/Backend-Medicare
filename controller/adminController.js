@@ -1,6 +1,8 @@
 import AdminModel from "../models/adminModel.js";
+import UserModel from "../models/user.js";
+import specialityModel from "../models/specialityModel.js";
 import bcrypt from "bcrypt";
-import  jwt  from "../utils/jwt.js";
+import jwt from "../utils/jwt.js";
 
 const AdminLogin = async (req, res) => {
   try {
@@ -23,8 +25,6 @@ const AdminLogin = async (req, res) => {
 
         if (isMatch) {
           const token = jwt.generateToken(admin._id);
-          console.log(token);
-          console.log('haiaiiii');
           adminResult.Status = true;
           adminResult.token = token;
           res.json({ adminResult });
@@ -60,4 +60,44 @@ const isAdmin = async (req, res, next) => {
   }
 };
 
-export default { AdminLogin, isAdmin };
+const getusers = async (req, res) => {
+  try {
+    const users = await UserModel.find();
+    if (users) {
+      res.json({ users });
+    } else {
+      let messages = "users not exist";
+    }
+    console.log(users);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+const speciality = async (req, res) => {
+  try {
+    const { name, description } = req.body;
+    if (name && description) {
+      const regex = new RegExp(name, "i");
+      const speciality = await specialityModel.find({
+        name: { $regex: regex },
+      });
+      console.log(speciality);
+      if (speciality.length === 0) {
+        const newSpeciality = new specialityModel({
+          name: name,
+          description: description,
+        });
+        await newSpeciality.save();
+        let message = "succuss";
+        res.json({ message });
+      } else {
+        let message = "speciality already exist";
+        res.json({ message });
+      }
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};
+export default { AdminLogin, isAdmin, getusers, speciality };
