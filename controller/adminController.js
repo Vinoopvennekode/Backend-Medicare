@@ -100,4 +100,49 @@ const speciality = async (req, res) => {
     console.log(error);
   }
 };
-export default { AdminLogin, isAdmin, getusers, speciality };
+
+
+const blockUser=async(req,res)=>{
+  try {
+    console.log(req.body);
+    const client = await UserModel.findByIdAndUpdate(req.body.id, {
+      block: true,
+    });
+    console.log(client.block);
+    if (client) {
+      res
+        .status(201)
+        .send({ message: `${client.fName} is blocked`, success: true });
+    } else {
+      return res
+        .status(200)
+        .send({ message: `${client.fName} doesnot exist`, success: false });
+    }
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+
+
+const unblockUser=async(req,res)=>{
+  try {
+    console.log(req.body);
+    const client = await UserModel.findByIdAndUpdate(req.body.id, {
+      block: false,
+    });
+    console.log(client.block);
+    if (client) {
+      res
+        .status(201)
+        .send({ message: `${client.fName} is unblocked`, success: true });
+    } else {
+      return res
+        .status(200)
+        .send({ message: `${client.fName} doesnot exist`, success: false });
+    }
+  } catch (error) {
+    console.log(error);
+  }
+}
+export default { AdminLogin, isAdmin, getusers, speciality,blockUser,unblockUser };

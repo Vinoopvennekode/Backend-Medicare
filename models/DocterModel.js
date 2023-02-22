@@ -16,13 +16,16 @@ const DocterSchema = new mongoose.Schema({
   email: {
     type: String,
   },
-  phone: {
+  phoneNumber: {
     type: String,
   },
-  image: {
+  doctorimg: {
     type: String,
   },
-  speciality: {
+  certificate: {
+    type: String,
+  },
+  department: {
     type: String,
   },
   location: {

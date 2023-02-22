@@ -21,6 +21,10 @@ const UserSchema = new mongoose.Schema({
     required: true,
     min: 5,
   },
+  block: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 const UserModel = mongoose.model("User", UserSchema);

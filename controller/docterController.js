@@ -9,7 +9,9 @@ const docterSignup = async (req, res) => {
     if (firstName && lastName && email && password) {
       const docter = await DocterModel.find({ email: email });
       console.log(docter);
+
       if (docter.length === 0) {
+        const token = jwt.generateToken(docter._id);
         const salt = await bcrypt.genSalt();
         const hashedPassword = await bcrypt.hash(password, salt);
         const newDocter = new DocterModel({
@@ -20,7 +22,13 @@ const docterSignup = async (req, res) => {
         });
         await newDocter.save();
         console.log(newDocter);
-        res.json({ status: "success", message: "signup success" });
+        console.log(newDocter._id);
+        res.json({
+          token,
+          docterId: newDocter._id,
+          status: "success",
+          message: "signup success",
+        });
       } else {
         let message = "email already exist";
         res.json({ message });
@@ -35,19 +43,40 @@ const docterSignup = async (req, res) => {
 };
 
 const docterRegister = async (req, res) => {
-  const { gender, phone, speciality, experience, location, address, docterId } =
-    req.body;
-
+  const {
+    gender,
+    phoneNumber,
+    department,
+    experience,
+    location,
+    address,
+    docterId,
+    doctorimg,
+    certificate,
+  } = req.body;
+  console.log(req.body);
   try {
-    if (gender && phone && speciality && experience && location && address) {
+    if (
+      gender &&
+      phoneNumber &&
+      department &&
+      experience &&
+      location &&
+      address &&
+      certificate &&
+      doctorimg &&
+      docterId
+    ) {
       const docter = await DocterModel.findByIdAndUpdate(docterId, {
         $set: {
           gender,
-          phone,
-          speciality,
+          phoneNumber,
+          department,
           experience,
           address,
           location,
+          doctorimg,
+          certificate,
           status: false,
         },
       });
@@ -79,6 +108,7 @@ const docterLogin = async (req, res) => {
     });
     console.log(findDocter);
     if (findDocter) {
+      console.log( docterDetails.password,findDocter.password);
       const isMatch = await bcrypt.compare(
         docterDetails.password,
         findDocter.password
