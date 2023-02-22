@@ -1,6 +1,7 @@
 import AdminModel from "../models/adminModel.js";
 import UserModel from "../models/user.js";
 import specialityModel from "../models/specialityModel.js";
+import DocterModel from "../models/DocterModel.js";
 import bcrypt from "bcrypt";
 import jwt from "../utils/jwt.js";
 
@@ -76,8 +77,9 @@ const getusers = async (req, res) => {
 
 const speciality = async (req, res) => {
   try {
-    const { name, description } = req.body;
-    if (name && description) {
+    console.log('okkkkk');
+    const { name, description ,deptImg} = req.body;
+    if (name && description&&deptImg) {
       const regex = new RegExp(name, "i");
       const speciality = await specialityModel.find({
         name: { $regex: regex },
@@ -87,10 +89,11 @@ const speciality = async (req, res) => {
         const newSpeciality = new specialityModel({
           name: name,
           description: description,
+          deptImg:deptImg
         });
         await newSpeciality.save();
         let message = "succuss";
-        res.json({ message });
+        res.json({ message,success:true });
       } else {
         let message = "speciality already exist";
         res.json({ message });
@@ -101,8 +104,38 @@ const speciality = async (req, res) => {
   }
 };
 
+const getSpeciality = async (req, res) => {
+  try {
+    const departments = await specialityModel.find();
+    if (departments) {
+      res.json({ departments });
+    } else {
+      let messages = "users not exist";
+    }
+    console.log(departments);
+  } catch (error) {
+    console.log(error);
+  }
+};
 
-const blockUser=async(req,res)=>{
+const viewSpeciality = async (req, res) => {
+  try {
+    console.log('ok55555kkkkk');
+    console.log(req.body);
+
+    const department = await specialityModel.findById(req.body.id);
+    if (department) {
+      res.json({ department, message: "succuss" });
+    } else {
+      res.json({ message: "departmet failed" });
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+
+const blockUser = async (req, res) => {
   try {
     console.log(req.body);
     const client = await UserModel.findByIdAndUpdate(req.body.id, {
@@ -121,11 +154,9 @@ const blockUser=async(req,res)=>{
   } catch (error) {
     console.log(error);
   }
-}
+};
 
-
-
-const unblockUser=async(req,res)=>{
+const unblockUser = async (req, res) => {
   try {
     console.log(req.body);
     const client = await UserModel.findByIdAndUpdate(req.body.id, {
@@ -144,5 +175,107 @@ const unblockUser=async(req,res)=>{
   } catch (error) {
     console.log(error);
   }
-}
-export default { AdminLogin, isAdmin, getusers, speciality,blockUser,unblockUser };
+};
+
+const getDoctors = async (req, res) => {
+  try {
+    const doctor = await DocterModel.find();
+    if (doctor) {
+      res.json({ doctor });
+    } else {
+      let messages = "doctors not exist";
+    }
+    console.log(doctor);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+const blockDoctor = async (req, res) => {
+  try {
+    console.log("okkkkkkkkkkkkkkkk");
+    console.log("hii" + req.body);
+    const doctor = await DocterModel.findByIdAndUpdate(req.body.id, {
+      block: true,
+    });
+    console.log("hai" + doctor);
+    if (doctor) {
+      res
+        .status(201)
+        .send({ message: `${doctor.fName} is blocked`, success: true });
+    } else {
+      return res
+        .status(200)
+        .send({ message: `${doctor.fName} doesnot exist`, success: false });
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+const unblockDoctor = async (req, res) => {
+  try {
+    console.log(req.body);
+    const doctor = await DocterModel.findByIdAndUpdate(req.body.id, {
+      block: false,
+    });
+    console.log(doctor.block);
+    if (doctor) {
+      res
+        .status(201)
+        .send({ message: `${doctor.fName} is unblocked`, success: true });
+    } else {
+      return res
+        .status(200)
+        .send({ message: `${doctor.fName} doesnot exist`, success: false });
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+const DoctorPending = async (req, res) => {
+  try {
+    const doctor = await DocterModel.find({ status: false });
+    if (doctor) {
+      res.json({ doctor });
+    } else {
+      let messages = "doctors not exist";
+    }
+    console.log(doctor);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+const approveDoctor = async (req, res) => {
+  try {
+    console.log(req.body);
+    const doctor = await DocterModel.findByIdAndUpdate(req.body.id, {
+      status: true,
+    });
+    console.log(doctor);
+    if (doctor) {
+      res.status(201).send({ success: true });
+    } else {
+      return res.status(200).send({ success: false });
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};
+export default {
+  AdminLogin,
+  isAdmin,
+  getusers,
+  speciality,
+  getSpeciality,
+  blockUser,
+  unblockUser,
+  getDoctors,
+  blockDoctor,
+  unblockDoctor,
+  DoctorPending,
+  approveDoctor,
+  viewSpeciality,
+};

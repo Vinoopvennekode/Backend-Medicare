@@ -37,6 +37,10 @@ const DocterSchema = new mongoose.Schema({
   status: {
     type: Boolean,
   },
+  block: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 const DocterModel = mongoose.model("Docter", DocterSchema);
