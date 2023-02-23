@@ -179,6 +179,8 @@ const unblockUser = async (req, res) => {
 
 const getDoctors = async (req, res) => {
   try {
+
+    console.log('hellooo');
     const doctor = await DocterModel.find();
     if (doctor) {
       res.json({ doctor });

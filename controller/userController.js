@@ -1,4 +1,5 @@
 import UserModel from "../models/user.js";
+import specialityModel from '../models/specialityModel.js'
 import bcrypt from "bcrypt";
 import jwt from "../utils/jwt.js";
 
@@ -70,4 +71,18 @@ const userLogin = async (req, res) => {
   }
 };
 
-export default { userSignup, userLogin };
+const departments=async(req,res)=>{
+  try {
+    const departments = await specialityModel.find();
+    if (departments) {
+      res.json({ departments });
+    } else {
+      let messages = "users not exist";
+    }
+    console.log(departments);
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+export default { userSignup, userLogin,departments };
