@@ -36,6 +36,10 @@ const DocterSchema = new mongoose.Schema({
   },
   status: {
     type: Boolean,
+    default: false,
+  },
+  doctorStatus: {
+    type: String,
   },
   block: {
     type: Boolean,

@@ -19,15 +19,17 @@ const docterSignup = async (req, res) => {
           lastName: lastName,
           email: email,
           password: hashedPassword,
+          doctorStatus: "register",
         });
-        await newDocter.save();
-        console.log(newDocter);
-        console.log(newDocter._id);
-        res.json({
-          token,
-          docterId: newDocter._id,
-          status: "success",
-          message: "signup success",
+        await newDocter.save().then((doctor) => {
+          const token = jwt.generateToken(doctor._id);
+          res.json({
+            token,
+            docterId: doctor._id,
+            doctorStatus: doctor.doctorStatus,
+            status: "success",
+            message: "signup success",
+          });
         });
       } else {
         let message = "email already exist";
@@ -38,7 +40,7 @@ const docterSignup = async (req, res) => {
       res.json({ message });
     }
   } catch (error) {
-    console.log(error);
+  res.json({error})
   }
 };
 
@@ -78,6 +80,7 @@ const docterRegister = async (req, res) => {
           doctorimg,
           certificate,
           status: false,
+          doctorStatus:"pending"
         },
       });
       if (docter) {
@@ -89,7 +92,7 @@ const docterRegister = async (req, res) => {
       res.json({ message });
     }
   } catch (error) {
-    console.log(error);
+  json({error})
   }
 };
 
@@ -108,7 +111,7 @@ const docterLogin = async (req, res) => {
     });
     console.log(findDocter);
     if (findDocter) {
-      console.log( docterDetails.password,findDocter.password);
+      console.log(docterDetails.password, findDocter.password);
       const isMatch = await bcrypt.compare(
         docterDetails.password,
         findDocter.password
@@ -132,8 +135,32 @@ const docterLogin = async (req, res) => {
       res.send({ docterLogin });
     }
   } catch (error) {
-    console.log(error);
+   res.json({error})
   }
 };
 
-export default { docterSignup, docterRegister, docterLogin };
+const StatusChecking = async (req, res) => {
+  try {
+    console.log(req.query);
+    const doctor = await DocterModel.findById(req.query.id);
+    let doctorStatus;
+    if (doctor.doctorStatus === "pending") {
+      doctorStatus = doctor.doctorStatus;
+    }
+    if (doctor.doctorStatus === "register") {
+      doctorStatus = doctor.doctorStatus;
+    }
+    if (doctor.doctorStatus === "active") {
+      doctorStatus = doctor.doctorStatus;
+    }
+    res.status(201).send({ doctorStatus, success: true });
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({
+      success: false,
+      message: `checkDoctorStatus controller ${error.message}`,
+    });
+  }
+}
+
+export default { docterSignup, docterRegister, docterLogin ,StatusChecking};

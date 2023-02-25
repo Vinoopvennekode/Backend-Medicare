@@ -42,22 +42,7 @@ const AdminLogin = async (req, res) => {
       res.json({ adminResult });
     }
   } catch (error) {
-    console.log(error);
-  }
-};
-
-const isAdmin = async (req, res, next) => {
-  try {
-    const adminDetails = await AdminModel.findById(req.adminId);
-    adminDetails.auth = true;
-
-    res.json({
-      username: adminDetails.name,
-      email: adminDetails.email,
-      auth: true,
-    });
-  } catch (error) {
-    next(error);
+    res.json({ error });
   }
 };
 
@@ -71,15 +56,15 @@ const getusers = async (req, res) => {
     }
     console.log(users);
   } catch (error) {
-    console.log(error);
+    res.json({ error });
   }
 };
 
 const speciality = async (req, res) => {
   try {
-    console.log('okkkkk');
-    const { name, description ,deptImg} = req.body;
-    if (name && description&&deptImg) {
+    console.log("okkkkk");
+    const { name, description, deptImg } = req.body;
+    if (name && description && deptImg) {
       const regex = new RegExp(name, "i");
       const speciality = await specialityModel.find({
         name: { $regex: regex },
@@ -89,18 +74,18 @@ const speciality = async (req, res) => {
         const newSpeciality = new specialityModel({
           name: name,
           description: description,
-          deptImg:deptImg
+          deptImg: deptImg,
         });
         await newSpeciality.save();
         let message = "succuss";
-        res.json({ message,success:true });
+        res.json({ message, status: true });
       } else {
         let message = "speciality already exist";
         res.json({ message });
       }
     }
   } catch (error) {
-    console.log(error);
+    res.json({ error });
   }
 };
 
@@ -114,13 +99,13 @@ const getSpeciality = async (req, res) => {
     }
     console.log(departments);
   } catch (error) {
-    console.log(error);
+    res.json({ error });
   }
 };
 
 const viewSpeciality = async (req, res) => {
   try {
-    console.log('ok55555kkkkk');
+    console.log("ok55555kkkkk");
     console.log(req.body);
 
     const department = await specialityModel.findById(req.body.id);
@@ -130,10 +115,9 @@ const viewSpeciality = async (req, res) => {
       res.json({ message: "departmet failed" });
     }
   } catch (error) {
-    console.log(error);
+    res.json({ error });
   }
 };
-
 
 const blockUser = async (req, res) => {
   try {
@@ -152,7 +136,7 @@ const blockUser = async (req, res) => {
         .send({ message: `${client.fName} doesnot exist`, success: false });
     }
   } catch (error) {
-    console.log(error);
+    res.json({ error });
   }
 };
 
@@ -173,15 +157,14 @@ const unblockUser = async (req, res) => {
         .send({ message: `${client.fName} doesnot exist`, success: false });
     }
   } catch (error) {
-    console.log(error);
+    res.json({ error });
   }
 };
 
 const getDoctors = async (req, res) => {
   try {
-
-    console.log('hellooo');
-    const doctor = await DocterModel.find();
+    console.log("hellooo");
+    const doctor = await DocterModel.find({ status: true });
     if (doctor) {
       res.json({ doctor });
     } else {
@@ -189,7 +172,7 @@ const getDoctors = async (req, res) => {
     }
     console.log(doctor);
   } catch (error) {
-    console.log(error);
+    res.json({ error });
   }
 };
 
@@ -211,7 +194,7 @@ const blockDoctor = async (req, res) => {
         .send({ message: `${doctor.fName} doesnot exist`, success: false });
     }
   } catch (error) {
-    console.log(error);
+    res.json({ error });
   }
 };
 
@@ -232,7 +215,7 @@ const unblockDoctor = async (req, res) => {
         .send({ message: `${doctor.fName} doesnot exist`, success: false });
     }
   } catch (error) {
-    console.log(error);
+    res.json({ error });
   }
 };
 
@@ -246,29 +229,53 @@ const DoctorPending = async (req, res) => {
     }
     console.log(doctor);
   } catch (error) {
-    console.log(error);
+    res.json({ error });
   }
 };
 
 const approveDoctor = async (req, res) => {
   try {
-    console.log(req.body);
     const doctor = await DocterModel.findByIdAndUpdate(req.body.id, {
       status: true,
+      doctorStatus: "active",
     });
-    console.log(doctor);
+
     if (doctor) {
       res.status(201).send({ success: true });
     } else {
       return res.status(200).send({ success: false });
     }
   } catch (error) {
-    console.log(error);
+    res.json({ error });
   }
 };
+const deleteDepartment = async (req, res) => {
+  try {
+    await specialityModel.findByIdAndRemove(req.query.id).then((department) => {
+      if (department) {
+        res.status(201).send({
+          message: `${department.department} Department deleted`,
+          success: true,
+        });
+      } else {
+        return res.status(200).send({
+          message: `${department.department} Department does not Exist`,
+          success: false,
+        });
+      }
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({
+      success: false,
+      message: `deleteDepartments controller ${error.message}`,
+    });
+  }
+};
+
 export default {
   AdminLogin,
-  isAdmin,
+
   getusers,
   speciality,
   getSpeciality,
@@ -280,4 +287,5 @@ export default {
   DoctorPending,
   approveDoctor,
   viewSpeciality,
+  deleteDepartment,
 };

@@ -5,7 +5,7 @@ import jwtAuth from "../utils/jwt.js";
 const router = express.Router();
 
 router.post("/adminLogin", adminController.AdminLogin);
-router.get("/isadmin", jwtAuth.jwtAdmin, adminController.isAdmin);
+
 router.get("/users", adminController.getusers);
 router.post("/speciality", adminController.speciality);
 router.get("/getdepartments", adminController.getSpeciality);
@@ -17,4 +17,5 @@ router.patch("/unblockDoctor", adminController.unblockDoctor);
 router.get("/pending", adminController.DoctorPending);
 router.patch("/approve", adminController.approveDoctor);
 router.post("/singledepartment", adminController.viewSpeciality);
+router.delete('/deleteDepartment',adminController.deleteDepartment)
 export default router;
