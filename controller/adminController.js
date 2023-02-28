@@ -97,7 +97,27 @@ const getSpeciality = async (req, res) => {
     } else {
       let messages = "users not exist";
     }
-    console.log(departments);
+    // console.log(departments);
+  } catch (error) {
+    res.json({ error });
+  }
+};
+
+const editDept = async (req, res) => {
+  try {
+    console.log(req.body);
+    const dept = req.body.data;
+    await specialityModel
+      .findByIdAndUpdate(req.body.id, {
+        name: dept.name,
+        description: dept.description,
+        deptImg: dept.deptImg,
+        status: dept.status,
+      })
+      .then((data) => {
+        console.log(data);
+        res.json({ message: "successfully updated " });
+      });
   } catch (error) {
     res.json({ error });
   }
@@ -105,9 +125,6 @@ const getSpeciality = async (req, res) => {
 
 const viewSpeciality = async (req, res) => {
   try {
-    console.log("ok55555kkkkk");
-    console.log(req.body);
-
     const department = await specialityModel.findById(req.body.id);
     if (department) {
       res.json({ department, message: "succuss" });
@@ -163,6 +180,7 @@ const unblockUser = async (req, res) => {
 
 const getDoctors = async (req, res) => {
   try {
+    console.log(req.user);
     console.log("hellooo");
     const doctor = await DocterModel.find({ status: true });
     if (doctor) {
@@ -170,7 +188,6 @@ const getDoctors = async (req, res) => {
     } else {
       let messages = "doctors not exist";
     }
-    console.log(doctor);
   } catch (error) {
     res.json({ error });
   }
@@ -282,6 +299,7 @@ export default {
   blockUser,
   unblockUser,
   getDoctors,
+  editDept,
   blockDoctor,
   unblockDoctor,
   DoctorPending,

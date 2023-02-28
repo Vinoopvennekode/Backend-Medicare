@@ -28,6 +28,9 @@ const DocterSchema = new mongoose.Schema({
   department: {
     type: String,
   },
+  experience: {
+    type: String,
+  },
   location: {
     type: String,
   },

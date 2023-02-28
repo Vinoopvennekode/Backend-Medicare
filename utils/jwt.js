@@ -1,4 +1,4 @@
-import jwt from 'jsonwebtoken';
+import jwt from "jsonwebtoken";
 
 const generateToken = (userId) => {
   try {
@@ -11,14 +11,16 @@ const generateToken = (userId) => {
 
 const verifyToken = (req, res, next) => {
   try {
-    const authHeader = req.headers['Authorization'];
-    const token = authHeader && authHeader.split(' ')[1];
+    // const authHeader = req.headers["Authorization"];
+    const token = req.headers["authorization"];
+    console.log(token);
+    // const token = authHeader && authHeader.split(" ")[1];
 
-    if (token == null) return res.status(403).send('Access Denied');
+    if (!token ) return res.json({status:'failed'});
 
     jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
       if (err) return res.sendStatus(403);
-      req.user = user;
+      req.user = user.id;
       next();
     });
   } catch (error) {
@@ -28,17 +30,17 @@ const verifyToken = (req, res, next) => {
 
 const jwtAdmin = async (req, res, next) => {
   try {
-    const token = req.headers['a-access-token'];
+    const token = req.headers["a-access-token"];
     console.log(token);
     if (!token) {
-      res.send({ status: 'failed', message: 'You need token' });
+      res.send({ status: "failed", message: "You need token" });
     } else {
       jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
         if (err) {
           res.json({
             auth: false,
-            status: 'failed',
-            message: 'failed to authenticate',
+            status: "failed",
+            message: "failed to authenticate",
           });
         } else {
           req.adminId = decoded.adminId;

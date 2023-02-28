@@ -40,7 +40,7 @@ const docterSignup = async (req, res) => {
       res.json({ message });
     }
   } catch (error) {
-  res.json({error})
+    res.json({ error });
   }
 };
 
@@ -80,7 +80,7 @@ const docterRegister = async (req, res) => {
           doctorimg,
           certificate,
           status: false,
-          doctorStatus:"pending"
+          doctorStatus: "pending",
         },
       });
       if (docter) {
@@ -92,7 +92,7 @@ const docterRegister = async (req, res) => {
       res.json({ message });
     }
   } catch (error) {
-  json({error})
+    json({ error });
   }
 };
 
@@ -102,6 +102,7 @@ const docterLogin = async (req, res) => {
     message: null,
     token: null,
     name: null,
+    id:null,
   };
   try {
     const docterDetails = req.body;
@@ -123,6 +124,7 @@ const docterLogin = async (req, res) => {
         docterLogin.Status = true;
         docterLogin.token = token;
         docterLogin.name = findDocter.firstName;
+        docterLogin.id = findDocter._id
         res.send({ docterLogin });
       } else {
         docterLogin.message = " Password is wrong";
@@ -135,7 +137,7 @@ const docterLogin = async (req, res) => {
       res.send({ docterLogin });
     }
   } catch (error) {
-   res.json({error})
+    res.json({ error });
   }
 };
 
@@ -161,6 +163,6 @@ const StatusChecking = async (req, res) => {
       message: `checkDoctorStatus controller ${error.message}`,
     });
   }
-}
+};
 
-export default { docterSignup, docterRegister, docterLogin ,StatusChecking};
+export default { docterSignup, docterRegister, docterLogin, StatusChecking };
