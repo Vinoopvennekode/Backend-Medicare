@@ -34,9 +34,19 @@ const DocterSchema = new mongoose.Schema({
   location: {
     type: String,
   },
-  availableDay: {
-    type: Array,
-  },
+  availableDay: [
+    {
+      day: {
+        type: String,
+      },
+      start: {
+        type: String,
+      },
+      end: {
+        type: String,
+      },
+    },
+  ],
   status: {
     type: Boolean,
     default: false,
@@ -48,6 +58,12 @@ const DocterSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  leaveDays: [
+    {
+      start: { type: String },
+      end: { type: String },
+    },
+  ],
 });
 
 const DocterModel = mongoose.model("Docter", DocterSchema);

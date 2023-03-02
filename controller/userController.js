@@ -1,7 +1,9 @@
 import UserModel from "../models/user.js";
-import specialityModel from '../models/specialityModel.js'
+import specialityModel from "../models/specialityModel.js";
+import AppoinmentModel from "../models/AppoinmentModel.js";
 import bcrypt from "bcrypt";
 import jwt from "../utils/jwt.js";
+import DocterModel from "../models/DocterModel.js";
 
 const userSignup = async (req, res) => {
   try {
@@ -71,7 +73,7 @@ const userLogin = async (req, res) => {
   }
 };
 
-const departments=async(req,res)=>{
+const departments = async (req, res) => {
   try {
     const departments = await specialityModel.find();
     if (departments) {
@@ -83,6 +85,34 @@ const departments=async(req,res)=>{
   } catch (error) {
     console.log(error);
   }
+};
+
+const viewAppoinment = async (req, res) => {
+  try {
+    console.log(req.query);
+    const app = await AppoinmentModel.findOne({ doctor: req.query.id });
+    const exist = app.appoinments.find((el) => el.day === req.query.day);
+    if (exist) {
+      const time=exist.time
+      console.log(time,'==================');
+      res.json({time:time})
+    }else{
+      res.json({time:[],message:'time not available'})
+    }
+  } catch (error) {
+    res.json({ error });
+  }
+};
+
+const findDoctror=async(req,res)=>{
+  try {
+    console.log(req.query.id,'0000000000000000000000');
+    const doctor=await DocterModel.findOne({_id:req.query.id})
+    console.log(doctor,'dddddddddddddddd');
+    res.json({doctor})
+  } catch (error) {
+    res.json({error})
+  }
 }
 
-export default { userSignup, userLogin,departments };
+export default { userSignup, userLogin, departments, viewAppoinment,findDoctror };

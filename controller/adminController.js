@@ -180,7 +180,7 @@ const unblockUser = async (req, res) => {
 
 const getDoctors = async (req, res) => {
   try {
-    console.log(req.user);
+   
     console.log("hellooo");
     const doctor = await DocterModel.find({ status: true });
     if (doctor) {

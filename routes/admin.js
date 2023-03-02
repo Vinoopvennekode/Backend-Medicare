@@ -12,7 +12,7 @@ router.get("/getdepartments", adminController.getSpeciality);
 router.post("/editDept",adminController.editDept)
 router.patch("/blockUser", adminController.blockUser);
 router.patch("/unblockUser", adminController.unblockUser);
-router.get("/doctors",jwt.verifyToken, adminController.getDoctors);
+router.get("/doctors", adminController.getDoctors);
 router.patch("/blockDoctor", adminController.blockDoctor);
 router.patch("/unblockDoctor", adminController.unblockDoctor);
 router.get("/pending", adminController.DoctorPending);

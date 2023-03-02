@@ -102,7 +102,7 @@ const docterLogin = async (req, res) => {
     message: null,
     token: null,
     name: null,
-    id:null,
+    id: null,
   };
   try {
     const docterDetails = req.body;
@@ -124,7 +124,7 @@ const docterLogin = async (req, res) => {
         docterLogin.Status = true;
         docterLogin.token = token;
         docterLogin.name = findDocter.firstName;
-        docterLogin.id = findDocter._id
+        docterLogin.id = findDocter._id;
         res.send({ docterLogin });
       } else {
         docterLogin.message = " Password is wrong";
@@ -165,4 +165,30 @@ const StatusChecking = async (req, res) => {
   }
 };
 
-export default { docterSignup, docterRegister, docterLogin, StatusChecking };
+const leaveDays = async (req, res) => {
+  try {
+    console.log(req.body);
+
+    const { start, end } = req.body.data;
+    const { id } = req.body.id;
+    console.log("1");
+
+    const doc = await DocterModel.findByIdAndUpdate(
+      { _id:id },
+      {
+        $push: { availableDay: { day: "mon", start: start, end: end } },
+      }
+    );
+    console.log(doc, "hellooo");
+    console.log("2");
+  } catch (error) {
+    res.json(error);
+  }
+};
+export default {
+  docterSignup,
+  docterRegister,
+  docterLogin,
+  StatusChecking,
+  leaveDays,
+};
