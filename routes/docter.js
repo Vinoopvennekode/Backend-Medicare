@@ -12,5 +12,8 @@ router.get("/statusChecking", docterController.StatusChecking);
 router.post("/addAppoinment", appoinmentController.DRappoinment);
 router.post('/viewappoinment',appoinmentController.viewAppoinment)
 router.delete('/deleteAppoinment',appoinmentController.deleteAppoinment)
+router.post('/getappoinments',docterController.getAppoinments)
 router.post("/leaveDays",docterController.leaveDays)
+router.get('/timeslots',docterController.timeSlots)
+
 export default router;

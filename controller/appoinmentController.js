@@ -1,17 +1,21 @@
-import AppoinmentModel from "../models/AppoinmentModel.js";
-import DocterModel from "../models/DocterModel.js";
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
+import {
+  AppoinmentModel,
+  userAppoinmentModel,
+} from '../models/AppoinmentModel.js';
+import DocterModel from '../models/DocterModel.js';
+
 const DRappoinment = async (req, res) => {
   try {
     const { day, start, end } = req.body.data;
     console.log(req.body);
-    const id = req.body.id;
+    const { id } = req.body;
     if (day && start && end) {
       const doc = await AppoinmentModel.findOne({ doctor: id });
       if (!doc) {
         const appoinment = new AppoinmentModel({
           doctor: id,
-          appoinments: [{ day: day, time: [{ start: start, end: end }] }],
+          appoinments: [{ day, time: [{ start, end }] }],
         });
         appoinment.save();
       } else {
@@ -20,24 +24,24 @@ const DRappoinment = async (req, res) => {
 
         if (app) {
           const doc = await AppoinmentModel.findOneAndUpdate(
-            { doctor: id, "appoinments._id": app._id },
+            { doctor: id, 'appoinments._id': app._id },
             {
-              $push: { "appoinments.$.time": { start: start, end: end } },
-            }
+              $push: { 'appoinments.$.time': { start, end } },
+            },
           );
         } else {
           const doc = await AppoinmentModel.findOneAndUpdate(
             { doctor: id },
             {
               $push: {
-                appoinments: [{ day: day, time: [{ start: start, end: end }] }],
+                appoinments: [{ day, time: [{ start, end }] }],
               },
-            }
+            },
           );
         }
       }
 
-      res.json({ status: "done" });
+      res.json({ status: 'done' });
     }
   } catch (error) {
     console.log(error);
@@ -61,7 +65,7 @@ const deleteAppoinment = async (req, res) => {
   try {
     const { id, doctor } = req.query;
     console.log(id, doctor);
-    const data = await AppoinmentModel.findOne({ doctor: doctor });
+    const data = await AppoinmentModel.findOne({ doctor });
     console.log(data);
     if (!data) {
     } else {
@@ -76,4 +80,5 @@ const deleteAppoinment = async (req, res) => {
     res.json(error);
   }
 };
+
 export default { DRappoinment, viewAppoinment, deleteAppoinment };

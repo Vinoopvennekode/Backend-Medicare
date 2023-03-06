@@ -1,6 +1,11 @@
 import DocterModel from "../models/DocterModel.js";
 import bcrypt from "bcrypt";
 import jwt from "../utils/jwt.js";
+import {
+  AppoinmentModel,
+  userAppoinmentModel,
+} from "../models/AppoinmentModel.js";
+import moment from "moment";
 
 const docterSignup = async (req, res) => {
   try {
@@ -174,7 +179,7 @@ const leaveDays = async (req, res) => {
     console.log("1");
 
     const doc = await DocterModel.findByIdAndUpdate(
-      { _id:id },
+      { _id: id },
       {
         $push: { availableDay: { day: "mon", start: start, end: end } },
       }
@@ -185,10 +190,47 @@ const leaveDays = async (req, res) => {
     res.json(error);
   }
 };
+
+const timeSlots = async (req, res) => {
+  try {
+    console.log("++++++////", req.query);
+    const app = await AppoinmentModel.findOne({ doctor: req.query.id });
+    const exist = app.appoinments.find((el) => el.day === req.query.day);
+    if (exist) {
+      const time = exist.time;
+      console.log(time);
+      res.json({ time });
+    } else {
+      res.json({ time: [], message: "time not available" });
+    }
+  } catch (error) {
+    res.json({ error });
+  }
+};
+
+const getAppoinments = async (req, res) => {
+  try {
+    const {id, date, timeStart } = req.body;
+    const dat = moment(date).format("MMM Do YYYY");
+    console.log(id,dat, timeStart);
+    const appoinments = await userAppoinmentModel
+      .find({
+        doctor:id,
+        date: dat,
+        timeStart: timeStart,
+      })
+      .populate("user");
+    res.json({ appoinments });
+  } catch (error) {
+    res.json({ error });
+  }
+};
 export default {
   docterSignup,
   docterRegister,
   docterLogin,
   StatusChecking,
   leaveDays,
+  getAppoinments,
+  timeSlots,
 };
