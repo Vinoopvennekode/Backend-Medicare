@@ -48,6 +48,9 @@ const userAppoinment = new mongoose.Schema({
   timeEnd: {
     type: String,
   },
+  allotedTime: {
+    type: String,
+  },
   status: {
     type: String,
     default: "pending",

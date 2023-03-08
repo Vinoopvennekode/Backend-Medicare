@@ -15,5 +15,6 @@ router.delete('/deleteAppoinment',appoinmentController.deleteAppoinment)
 router.post('/getappoinments',docterController.getAppoinments)
 router.post("/leaveDays",docterController.leaveDays)
 router.get('/timeslots',docterController.timeSlots)
+router.post('/allotedTime',docterController.allotedTime)
 
 export default router;

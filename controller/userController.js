@@ -8,14 +8,21 @@ import {
 import bcrypt from "bcrypt";
 import jwt from "../utils/jwt.js";
 import DocterModel from "../models/DocterModel.js";
+import { sendsms, verifysms } from "../config/otpvalidation.js";
+
+
 
 const userSignup = async (req, res) => {
   try {
     const { name, email, phoneNumber, password } = req.body;
     if (name && email && phoneNumber && password) {
       const user = await UserModel.find({ email: email });
-
-      if (user.length === 0) {
+      const phone = await UserModel.find({ phone: phoneNumber });
+      if (user.length) {
+        res.json({ status: "failed", message: "user already exist" });
+      } else if (phone) {
+        res.json({ status: "failed", message: "Phone Number already exist" });
+      } else {
         const salt = await bcrypt.genSalt();
         const hashedPassword = await bcrypt.hash(password, salt);
         const newUser = new UserModel({
@@ -26,8 +33,6 @@ const userSignup = async (req, res) => {
         });
         await newUser.save();
         res.json({ status: "success", message: "signup success" }).Status(200);
-      } else {
-        res.json({ status: "failed", message: "user already exist" });
       }
     } else {
       res.json({ status: "failed", message: "fill all column" });

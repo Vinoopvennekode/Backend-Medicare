@@ -210,12 +210,12 @@ const timeSlots = async (req, res) => {
 
 const getAppoinments = async (req, res) => {
   try {
-    const {id, date, timeStart } = req.body;
+    const { id, date, timeStart } = req.body;
     const dat = moment(date).format("MMM Do YYYY");
-    console.log(id,dat, timeStart);
+    console.log(id, dat, timeStart);
     const appoinments = await userAppoinmentModel
       .find({
-        doctor:id,
+        doctor: id,
         date: dat,
         timeStart: timeStart,
       })
@@ -223,6 +223,19 @@ const getAppoinments = async (req, res) => {
     res.json({ appoinments });
   } catch (error) {
     res.json({ error });
+  }
+};
+
+const allotedTime = async (req, res) => {
+  try {
+    const { id, allotedTime } = req.body;
+    const editAlloted = await userAppoinmentModel.findByIdAndUpdate(id, {
+      status: "approved",
+      allotedTime: allotedTime,
+    });
+    res.json({message:'done'})
+  } catch (error) {
+    res.json(error);
   }
 };
 export default {
@@ -233,4 +246,5 @@ export default {
   leaveDays,
   getAppoinments,
   timeSlots,
+  allotedTime,
 };
