@@ -20,7 +20,7 @@ const verifyToken = (req, res, next) => {
 
     jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
       if (err) return res.sendStatus(403);
-      req.user = user.id;
+      req.user = user;
       next();
     });
   } catch (error) {
@@ -52,5 +52,7 @@ const jwtAdmin = async (req, res, next) => {
     next(error);
   }
 };
+
+
 
 export default { jwtAdmin, verifyToken, generateToken };

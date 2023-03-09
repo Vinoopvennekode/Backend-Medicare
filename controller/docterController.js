@@ -6,6 +6,7 @@ import {
   userAppoinmentModel,
 } from "../models/AppoinmentModel.js";
 import moment from "moment";
+import UserModel from "../models/user.js";
 
 const docterSignup = async (req, res) => {
   try {
@@ -56,6 +57,7 @@ const docterRegister = async (req, res) => {
     department,
     experience,
     location,
+    fees,
     address,
     docterId,
     doctorimg,
@@ -69,6 +71,7 @@ const docterRegister = async (req, res) => {
       department &&
       experience &&
       location &&
+      fees&&
       address &&
       certificate &&
       doctorimg &&
@@ -82,6 +85,7 @@ const docterRegister = async (req, res) => {
           experience,
           address,
           location,
+          fees,
           doctorimg,
           certificate,
           status: false,
@@ -228,12 +232,24 @@ const getAppoinments = async (req, res) => {
 
 const allotedTime = async (req, res) => {
   try {
-    const { id, allotedTime } = req.body;
+    const { date,doctorId,userId, id, allotedTime } = req.body;
+    const day =moment(date).format("MMM Do YY")
     const editAlloted = await userAppoinmentModel.findByIdAndUpdate(id, {
       status: "approved",
       allotedTime: allotedTime,
     });
-    res.json({message:'done'})
+    const doctor = await DocterModel.findById(doctorId)
+
+    const user = await UserModel.findById(userId);
+   
+    const notifications = user.notifications;
+    notifications.push({
+      type: "ApprovedAppoinment",
+      message: `${doctor.firstName} ${doctor.lastName} has Approved your booking on ${day} at ${allotedTime} `,
+    });
+    const usereee=await UserModel.findByIdAndUpdate(userId, { notifications });
+console.log(usereee);
+    res.json({ message: "done" });
   } catch (error) {
     res.json(error);
   }

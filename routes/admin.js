@@ -6,20 +6,38 @@ const router = express.Router();
 
 router.post("/adminLogin", adminController.AdminLogin);
 
-router.get("/users", adminController.getusers);
-router.post("/speciality", adminController.speciality);
-router.get("/getdepartments", adminController.getSpeciality);
-router.post("/editDept",adminController.editDept)
-router.patch("/blockUser", adminController.blockUser);
-router.patch("/unblockUser", adminController.unblockUser);
-router.get("/doctors", adminController.getDoctors);
-router.patch("/blockDoctor", adminController.blockDoctor);
-router.patch("/unblockDoctor", adminController.unblockDoctor);
-router.get("/pending", adminController.DoctorPending);
-router.patch("/approve", adminController.approveDoctor);
-router.post("/singledepartment", adminController.viewSpeciality);
-router.delete('/deleteDepartment',adminController.deleteDepartment);
+router.get("/users", jwt.verifyToken, adminController.getusers);
 
+router.post("/speciality", jwt.verifyToken, adminController.speciality);
 
+router.get("/getdepartments", jwt.verifyToken, adminController.getSpeciality);
+
+router.post("/editDept", jwt.verifyToken, adminController.editDept);
+
+router.patch("/blockUser", jwt.verifyToken, adminController.blockUser);
+
+router.patch("/unblockUser", jwt.verifyToken, adminController.unblockUser);
+
+router.get("/doctors", jwt.verifyToken, adminController.getDoctors);
+
+router.patch("/blockDoctor", jwt.verifyToken, adminController.blockDoctor);
+
+router.patch("/unblockDoctor", jwt.verifyToken, adminController.unblockDoctor);
+
+router.get("/pending", jwt.verifyToken, adminController.DoctorPending);
+
+router.patch("/approve", jwt.verifyToken, adminController.approveDoctor);
+
+router.post(
+  "/singledepartment",
+  jwt.verifyToken,
+  adminController.viewSpeciality
+);
+
+router.delete(
+  "/deleteDepartment",
+  jwt.verifyToken,
+  adminController.deleteDepartment
+);
 
 export default router;

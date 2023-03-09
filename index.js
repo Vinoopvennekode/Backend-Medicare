@@ -2,6 +2,7 @@ import express from "express";
 import dotenv from "dotenv";
 dotenv.config();
 import cors from "cors";
+import session from "express-session";
 import morgan from "morgan";
 import connectDB from "./config/connectDB.js";
 import bodyParser from "body-parser";
@@ -16,6 +17,15 @@ import docterRouter from "./routes/docter.js";
 const app = express();
 app.use(express.json());
 app.use(morgan("dev"));
+app.use(
+  session({
+    secret: "ttt",
+    resave: true,
+    saveUninitialized: true,
+    cookie: { maxAge: 600000 },
+  })
+);
+
 app.use(bodyParser.json({ limit: "30mb", extended: true }));
 app.use(express.urlencoded({ limit: "30mb", extended: true }));
 app.use(cors());
