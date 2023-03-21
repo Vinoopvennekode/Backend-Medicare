@@ -3,7 +3,7 @@ import {
   AppoinmentModel,
   userAppoinmentModel,
 } from '../models/AppoinmentModel.js';
-import DocterModel from '../models/DocterModel.js';
+import DoctorModel from '../models/DoctorModel.js';
 
 const DRappoinment = async (req, res) => {
   try {

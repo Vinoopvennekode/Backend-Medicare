@@ -16,10 +16,12 @@ export function sendsms(phone) {
 }
 
 export function verifysms(phone, otp) {
+  console.log(phone,'phone');
+  console.log(otp,'otp');
   return new Promise((resolve, reject) => {
     client.verify.v2
       .services(serviceID)
-      .verificationChecks.create({ to: `+91${phone}`, code: otp })
+      .verificationChecks.create({ to:`+91${phone}`, code: otp })
       .then((verification_check) => {
         console.log(verification_check.status);
         resolve(verification_check);

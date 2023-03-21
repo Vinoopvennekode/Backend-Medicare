@@ -7,7 +7,7 @@ import {
 
 import bcrypt from "bcrypt";
 import jwt from "../utils/jwt.js";
-import DocterModel from "../models/DocterModel.js";
+import DoctorModel from "../models/DoctorModel.js";
 import { sendsms, verifysms } from "../config/otpvalidation.js";
 
 const userSignup = async (req, res) => {
@@ -30,39 +30,37 @@ const userSignup = async (req, res) => {
             status: "success",
             message: "otp send successfully",
           })
-          .Status(200);
+          .status(200);
       }
     } else {
       res.json({ status: "failed", message: "fill all column" });
     }
   } catch (error) {
-    console.log(error);
+    res.json({ error });
   }
 };
 
 const otpVerify = async (req, res) => {
   try {
     const { name, email, phoneNumber, password } = req.user.id;
-    console.log(req.user.id);
-    console.log(req.body, "boodyy");
-    await verifysms(phoneNumber, req.body.data).then(
-      async (verification_check) => {
-        if (verification_check.status == "approved") {
-          const salt = await bcrypt.genSalt();
-          const hashedPassword = await bcrypt.hash(password, salt);
-          const newUser = new UserModel({
-            name: name,
-            email: email,
-            password: hashedPassword,
-            phone: phoneNumber,
-          });
-          await newUser.save();
-          res.send({ status: "success", message: "signup success" });
-        } else {
-          res.json({ message: "otp does not match" });
-        }
+
+    const otp = req.body.data.otp;
+    await verifysms(phoneNumber, otp).then(async (verification_check) => {
+      if (verification_check.status == "approved") {
+        const salt = await bcrypt.genSalt();
+        const hashedPassword = await bcrypt.hash(password, salt);
+        const newUser = new UserModel({
+          name: name,
+          email: email,
+          password: hashedPassword,
+          phone: phoneNumber,
+        });
+        await newUser.save();
+        res.send({ status: "success", message: "signup success" });
+      } else {
+        res.json({ message: "otp does not match" });
       }
-    );
+    });
   } catch (error) {
     res.json(error);
   }
@@ -71,7 +69,6 @@ const otpVerify = async (req, res) => {
 const NumberCheck = async (req, res, next) => {
   try {
     const { phoneNumber } = req.body;
-    console.log(phoneNumber);
     const data = await UserModel.find({ phone: phoneNumber });
     if (data.length) {
       res.json({ status: true });
@@ -107,8 +104,7 @@ const setNewPassword = async (req, res, next) => {
 
 const forgotOtpVerify = async (req, res) => {
   try {
-    console.log(req.body, "boodyyqwerqwerqwer");
-    const { otp, phone } = req.body;
+    const { otp, phone } = req.body.data;
     await verifysms(phone, otp).then(async (verification_check) => {
       if (verification_check.status == "approved") {
         res.json({ status: true, message: "signup success" });
@@ -130,9 +126,9 @@ const userLogin = async (req, res) => {
   };
   try {
     const userDetails = req.body;
-    console.log(req.body);
+
     const findUser = await UserModel.findOne({ email: userDetails.email });
-    console.log(findUser);
+
     if (findUser) {
       const isMatch = await bcrypt.compare(
         userDetails.password,
@@ -140,12 +136,13 @@ const userLogin = async (req, res) => {
       );
       if (isMatch === true) {
         const token = jwt.generateToken(findUser._id);
-        console.log(token);
+        console.log(findUser);
         userLogin.message = "You are logged";
         userLogin.Status = true;
         userLogin.token = token;
         userLogin.name = findUser.name;
         userLogin.id = findUser._id;
+        userLogin.block = findUser.block;
         res.send({ userLogin });
       } else {
         userLogin.message = " Password is wrong";
@@ -158,14 +155,13 @@ const userLogin = async (req, res) => {
       res.send({ userLogin });
     }
   } catch (error) {
-    console.log(error);
+    res.json({ error });
   }
 };
 
 const getDoctors = async (req, res) => {
   try {
-    console.log("hellooo");
-    const doctor = await DocterModel.find({ status: true });
+    const doctor = await DoctorModel.find({ status: true });
     if (doctor) {
       res.json({ doctor });
     } else {
@@ -183,20 +179,18 @@ const departments = async (req, res) => {
     } else {
       let messages = "users not exist";
     }
-    console.log(departments);
   } catch (error) {
-    console.log(error);
+    res.json({ error });
   }
 };
 
 const viewAppoinment = async (req, res) => {
   try {
-    console.log(req.query);
     const app = await AppoinmentModel.findOne({ doctor: req.query.id });
     const exist = app.appoinments.find((el) => el.day === req.query.day);
     if (exist) {
       const time = exist.time;
-      // console.log(time, "==================");
+
       res.json({ time: time });
     } else {
       res.json({ time: [], message: "time not available" });
@@ -208,9 +202,8 @@ const viewAppoinment = async (req, res) => {
 
 const findDoctror = async (req, res) => {
   try {
-    // console.log(req.query.id, "0000000000000000000000");
-    const doctor = await DocterModel.findOne({ _id: req.query.id });
-    // console.log(doctor, "dddddddddddddddd");
+    const doctor = await DoctorModel.findOne({ _id: req.query.id });
+
     res.json({ doctor });
   } catch (error) {
     res.json({ error });
@@ -219,16 +212,15 @@ const findDoctror = async (req, res) => {
 
 const postAppointmnet = async (req, res) => {
   try {
-    // console.log(req.body);
     const { doctor, user, age, symptoms, date, time } = req.body;
-    console.log(req.body, "+_+_+_+_+_+_+_+_");
+
     if (doctor && user && age && symptoms && date && time) {
       const exist = await userAppoinmentModel.find({
         doctor: doctor,
         user: user,
         date: date,
       });
-      console.log(exist);
+
       if (!exist.length) {
         const newAppoinment = new userAppoinmentModel({
           doctor: doctor,
@@ -254,20 +246,17 @@ const postAppointmnet = async (req, res) => {
 
 const getAllNotifications = async (req, res) => {
   try {
-    console.log("ethiiii");
-    console.log(req.body);
     const client = await UserModel.findOne({ _id: req.body.id });
-    console.log(client);
+
     const clientNotifications = client.notifications;
     const clientSeenNotification = client.seenNotifications;
     res
       .status(200)
       .send({ success: true, clientNotifications, clientSeenNotification });
   } catch (error) {
-    console.log(error);
     res.status(500).send({
       success: false,
-      message: `getAllNotifications  controller ${error.message}`,
+      message: `getAllNotifications controller ${error.message}`,
     });
   }
 };
@@ -275,19 +264,18 @@ const getAllNotifications = async (req, res) => {
 const notificationMarkAllRead = async (req, res) => {
   try {
     const client = await UserModel.findOne({ _id: req.body.id });
-    console.log(client);
+
     const seenNotifications = client.seenNotifications;
     const notifications = client.notifications;
     seenNotifications.push(...notifications);
     client.notifications = [];
     client.seenNotifications = notifications;
     const updatedClient = await client.save();
-    console.log(updatedClient);
+
     res
       .status(200)
       .send({ success: true, message: "all notifications marked as read" });
   } catch (error) {
-    console.log(error);
     res.status(500).send({
       success: false,
       message: `notificationMarkAllRead  controller ${error.message}`,
@@ -297,7 +285,6 @@ const notificationMarkAllRead = async (req, res) => {
 
 const notificationDeleteAllRead = async (req, res) => {
   try {
-    console.log(req.body);
     const client = await UserModel.findOne({ _id: req.body.id });
     client.seenNotifications = [];
     const updateClient = await client.save();
@@ -305,7 +292,6 @@ const notificationDeleteAllRead = async (req, res) => {
       .status(200)
       .send({ success: true, message: "Notifications Deleted successfully" });
   } catch (error) {
-    console.log(error);
     res.status(500).send({
       success: false,
       message: `notificationDeleteAllRead  controller ${error.message}`,
@@ -313,17 +299,15 @@ const notificationDeleteAllRead = async (req, res) => {
   }
 };
 
-const getDocters = async (req, res) => {
+const getDoctor = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 3;
     const sortBy = req.query.sortBy || "createdAt";
     const sortOrder = req.query.sortOrder || "desc";
     const searchData = req.query.searchLocation || "";
-    const department=req.query.department||""
+    const department = req.query.department || "";
 
-
-  
     const query = {
       status: true,
     };
@@ -331,12 +315,13 @@ const getDocters = async (req, res) => {
       // query.department = { $regex: new RegExp(`^${searchData}.*`, "i") };
       query.location = { $regex: new RegExp(`^${searchData}.*`, "i") };
     }
+    if (department === "All") {
+      delete query["department"];
+    } else if (department !== "") {
+      query.department = department;
+    }
 
-if(department!==""){
-  query.department=department
-}
-
-    const doctors = await DocterModel.find(query)
+    const doctors = await DoctorModel.find(query)
       .sort({ [sortBy]: sortOrder })
       .skip((page - 1) * limit)
       .limit(limit);
@@ -344,7 +329,7 @@ if(department!==""){
     res.json({
       data: doctors,
       currentPage: page,
-      totalPages: Math.ceil((await DocterModel.countDocuments(query)) / limit),
+      totalPages: Math.ceil((await DoctorModel.countDocuments(query)) / limit),
     });
   } catch (error) {
     res.json({ error });
@@ -365,5 +350,5 @@ export default {
   notificationDeleteAllRead,
   getAllNotifications,
   notificationMarkAllRead,
-  getDocters,
+  getDoctor,
 };

@@ -1,4 +1,4 @@
-import DocterModel from "../models/DocterModel.js";
+import DoctorModel from "../models/DoctorModel.js";
 import bcrypt from "bcrypt";
 import jwt from "../utils/jwt.js";
 import {
@@ -8,30 +8,30 @@ import {
 import moment from "moment";
 import UserModel from "../models/user.js";
 
-const docterSignup = async (req, res) => {
+const doctorSignup = async (req, res) => {
   try {
     const { firstName, lastName, email, password } = req.body;
     console.log(req.body);
     if (firstName && lastName && email && password) {
-      const docter = await DocterModel.find({ email: email });
-      console.log(docter);
+      const doctor = await DoctorModel.find({ email: email });
+      console.log(doctor);
 
-      if (docter.length === 0) {
-        const token = jwt.generateToken(docter._id);
+      if (doctor.length === 0) {
+        const token = jwt.generateToken(doctor._id);
         const salt = await bcrypt.genSalt();
         const hashedPassword = await bcrypt.hash(password, salt);
-        const newDocter = new DocterModel({
+        const newDoctor = new DoctorModel({
           firstName: firstName,
           lastName: lastName,
           email: email,
           password: hashedPassword,
           doctorStatus: "register",
         });
-        await newDocter.save().then((doctor) => {
+        await newDoctor.save().then((doctor) => {
           const token = jwt.generateToken(doctor._id);
           res.json({
             token,
-            docterId: doctor._id,
+            doctorId: doctor._id,
             doctorStatus: doctor.doctorStatus,
             status: "success",
             message: "signup success",
@@ -50,7 +50,7 @@ const docterSignup = async (req, res) => {
   }
 };
 
-const docterRegister = async (req, res) => {
+const doctorRegister = async (req, res) => {
   const {
     gender,
     phoneNumber,
@@ -59,11 +59,11 @@ const docterRegister = async (req, res) => {
     location,
     fees,
     address,
-    docterId,
+    doctorId,
     doctorimg,
     certificate,
   } = req.body;
-  console.log(req.body);
+
   try {
     if (
       gender &&
@@ -71,13 +71,14 @@ const docterRegister = async (req, res) => {
       department &&
       experience &&
       location &&
-      fees&&
+      fees &&
       address &&
       certificate &&
       doctorimg &&
-      docterId
+      doctorId
     ) {
-      const docter = await DocterModel.findByIdAndUpdate(docterId, {
+      const docId = doctorId.doctorId;
+      const doctor = await DoctorModel.findByIdAndUpdate(docId, {
         $set: {
           gender,
           phoneNumber,
@@ -92,7 +93,7 @@ const docterRegister = async (req, res) => {
           doctorStatus: "pending",
         },
       });
-      if (docter) {
+      if (doctor) {
         let message = "success";
         res.json({ message });
       }
@@ -101,12 +102,13 @@ const docterRegister = async (req, res) => {
       res.json({ message });
     }
   } catch (error) {
-    json({ error });
+    console.log(error);
+    res.json({ error });
   }
 };
 
-const docterLogin = async (req, res) => {
-  let docterLogin = {
+const doctorLogin = async (req, res) => {
+  let doctorLogin = {
     Status: false,
     message: null,
     token: null,
@@ -114,36 +116,36 @@ const docterLogin = async (req, res) => {
     id: null,
   };
   try {
-    const docterDetails = req.body;
+    const doctorDetails = req.body;
     console.log(req.body);
-    const findDocter = await DocterModel.findOne({
-      email: docterDetails.email,
+    const findDoctor = await DoctorModel.findOne({
+      email: doctorDetails.email,
     });
-    console.log(findDocter);
-    if (findDocter) {
-      console.log(docterDetails.password, findDocter.password);
+    console.log(findDoctor);
+    if (findDoctor) {
       const isMatch = await bcrypt.compare(
-        docterDetails.password,
-        findDocter.password
+        doctorDetails.password,
+        findDoctor.password
       );
       if (isMatch === true) {
-        const token = jwt.generateToken(findDocter._id);
-        console.log(token);
-        docterLogin.message = "You are logged";
-        docterLogin.Status = true;
-        docterLogin.token = token;
-        docterLogin.name = findDocter.firstName;
-        docterLogin.id = findDocter._id;
-        res.send({ docterLogin });
+        const token = jwt.generateToken(findDoctor._id);
+        console.log(token, "tooeekekekenn");
+        doctorLogin.message = "You are logged";
+        doctorLogin.Status = true;
+        doctorLogin.token = token;
+        doctorLogin.name = findDoctor.firstName;
+        doctorLogin.id = findDoctor._id;
+        res.send({ doctorLogin });
       } else {
-        docterLogin.message = " Password is wrong";
-        docterLogin.Status = false;
-        res.send({ docterLogin });
+        doctorLogin.message = " Password is wrong";
+        doctorLogin.Status = false;
+        res.send({ doctorLogin });
       }
     } else {
-      docterLogin.message = "your Email wrong";
-      docterLogin.Status = false;
-      res.send({ docterLogin });
+      console.log("email wrong");
+      doctorLogin.message = "your Email wrong";
+      doctorLogin.Status = false;
+      res.send({ doctorLogin });
     }
   } catch (error) {
     res.json({ error });
@@ -153,7 +155,7 @@ const docterLogin = async (req, res) => {
 const StatusChecking = async (req, res) => {
   try {
     console.log(req.query);
-    const doctor = await DocterModel.findById(req.query.id);
+    const doctor = await DoctorModel.findById(req.query.id);
     let doctorStatus;
     if (doctor.doctorStatus === "pending") {
       doctorStatus = doctor.doctorStatus;
@@ -164,7 +166,10 @@ const StatusChecking = async (req, res) => {
     if (doctor.doctorStatus === "active") {
       doctorStatus = doctor.doctorStatus;
     }
-    res.status(201).send({ doctorStatus, success: true });
+    if (doctor.doctorStatus === "reject") {
+      doctorStatus = doctor.doctorStatus;
+    }
+    res.status(201).send({ doctor, doctorStatus, success: true });
   } catch (error) {
     console.log(error);
     res.status(500).send({
@@ -182,7 +187,7 @@ const leaveDays = async (req, res) => {
     const { id } = req.body.id;
     console.log("1");
 
-    const doc = await DocterModel.findByIdAndUpdate(
+    const doc = await DoctorModel.findByIdAndUpdate(
       { _id: id },
       {
         $push: { availableDay: { day: "mon", start: start, end: end } },
@@ -232,35 +237,141 @@ const getAppoinments = async (req, res) => {
 
 const allotedTime = async (req, res) => {
   try {
-    const { date,doctorId,userId, id, allotedTime } = req.body;
-    const day =moment(date).format("MMM Do YY")
+    const { date, doctorId, userId, id, allotedTime } = req.body;
+    const day = moment(date).format("MMM Do YY");
     const editAlloted = await userAppoinmentModel.findByIdAndUpdate(id, {
       status: "approved",
       allotedTime: allotedTime,
     });
-    const doctor = await DocterModel.findById(doctorId)
+    const doctor = await DoctorModel.findById(doctorId);
 
     const user = await UserModel.findById(userId);
-   
+
     const notifications = user.notifications;
     notifications.push({
       type: "ApprovedAppoinment",
       message: `${doctor.firstName} ${doctor.lastName} has Approved your booking on ${day} at ${allotedTime} `,
     });
-    const usereee=await UserModel.findByIdAndUpdate(userId, { notifications });
-console.log(usereee);
+    const usereee = await UserModel.findByIdAndUpdate(userId, {
+      notifications,
+    });
+    console.log(usereee);
     res.json({ message: "done" });
   } catch (error) {
     res.json(error);
   }
 };
+
+const deleteAccount = async (req, res) => {
+  try {
+    const id = req.query.id;
+    if (id) {
+      const deleteAccount = await DoctorModel.findByIdAndDelete({
+        _id: id,
+      }).then((res) => {
+        console.log(res);
+      });
+
+      res.json({ success: true, message: "account deleted from database" });
+    } else {
+      res.json({ message: "id not found" });
+    }
+  } catch (error) {
+    res.json({ error });
+  }
+};
+const getProfile = async (req, res) => {
+  const id = req.body.data;
+  console.log(id, "isddddd");
+  const doctor = await DoctorModel.findOne({ _id: id });
+  console.log(doctor);
+  res.json({ doctor });
+};
+
+const updateProfile = async (req, res) => {
+  const {
+    firstName,
+    lastName,
+    email,
+    phoneNumber,
+    department,
+    experience,
+    location,
+    fees,
+    address,
+    doctorId,
+    doctorimg,
+  } = req.body;
+  console.log(req.body, "req booodydyyyyyy");
+  try {
+    const doctor = await DoctorModel.findByIdAndUpdate(doctorId, {
+      $set: {
+        firstName,
+        lastName,
+        email,
+        phoneNumber,
+        department,
+        experience,
+        address,
+        location,
+        fees,
+        doctorimg,
+      },
+    });
+    if (doctor) {
+      let message = "success";
+      res.json({ message });
+    }
+  } catch (error) {
+    console.log(error);
+    res.json({ error });
+  }
+};
+
+const appoinmentHistory = async (req, res) => {
+  try {
+    const { date, id } = req.body;
+    const dat = moment(date).format("MMM Do YYYY");
+
+    console.log(req.body);
+    const appoinments = await userAppoinmentModel
+      .find({
+        doctor: id,
+        date: dat,
+        status: "checked",
+      })
+      .populate("user");
+
+    res.json({ appoinments });
+  } catch (error) {
+    res.json({error})
+  }
+};
+
+const checked = async (req, res) => {
+  try {
+    console.log(req.body)
+    const id=req.body.data
+    const checked = await userAppoinmentModel.findByIdAndUpdate(id, {
+      status: "checked",
+    });
+    res.json({message:'checked'})
+  } catch (error) {
+    res.json({ error });
+  }
+};
 export default {
-  docterSignup,
-  docterRegister,
-  docterLogin,
+  doctorSignup,
+  doctorRegister,
+  doctorLogin,
   StatusChecking,
   leaveDays,
   getAppoinments,
   timeSlots,
   allotedTime,
+  deleteAccount,
+  getProfile,
+  updateProfile,
+  appoinmentHistory,
+  checked,
 };

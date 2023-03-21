@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-const DocterSchema = new mongoose.Schema({
+const DoctorSchema = new mongoose.Schema({
   firstName: {
     type: String,
   },
@@ -18,6 +18,9 @@ const DocterSchema = new mongoose.Schema({
   },
   phoneNumber: {
     type: String,
+  },
+  address:{
+    type:String
   },
   doctorimg: {
     type: String,
@@ -61,6 +64,9 @@ const DocterSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  rejectReason: {
+    type: String,
+  },
   leaveDays: [
     {
       start: { type: String },
@@ -69,6 +75,6 @@ const DocterSchema = new mongoose.Schema({
   ],
 });
 
-const DocterModel = mongoose.model("Docter", DocterSchema);
+const DoctorModel = mongoose.model("Docter", DoctorSchema);
 
-export default DocterModel;
+export default DoctorModel;

@@ -20,6 +20,8 @@ router.patch("/unblockUser", jwt.verifyToken, adminController.unblockUser);
 
 router.get("/doctors", jwt.verifyToken, adminController.getDoctors);
 
+router.get('/appoinments',jwt.verifyToken,adminController.Appoinments)
+
 router.patch("/blockDoctor", jwt.verifyToken, adminController.blockDoctor);
 
 router.patch("/unblockDoctor", jwt.verifyToken, adminController.unblockDoctor);
@@ -27,6 +29,8 @@ router.patch("/unblockDoctor", jwt.verifyToken, adminController.unblockDoctor);
 router.get("/pending", jwt.verifyToken, adminController.DoctorPending);
 
 router.patch("/approve", jwt.verifyToken, adminController.approveDoctor);
+
+router.patch("/reject", jwt.verifyToken, adminController.rejectDoctor);
 
 router.post(
   "/singledepartment",

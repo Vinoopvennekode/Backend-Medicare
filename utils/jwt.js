@@ -13,7 +13,7 @@ const verifyToken = (req, res, next) => {
   try {
     // const authHeader = req.headers["Authorization"];
     const token = req.headers["authorization"];
-    console.log(token);
+    console.log(token,'jwt token');
     // const token = authHeader && authHeader.split(" ")[1];
 
     if (!token ) return res.json({status:'failed'});

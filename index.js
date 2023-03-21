@@ -8,7 +8,7 @@ import connectDB from "./config/connectDB.js";
 import bodyParser from "body-parser";
 import userRouter from "./routes/user.js";
 import adminRouter from "./routes/admin.js";
-import docterRouter from "./routes/docter.js";
+import doctorRouter from "./routes/doctor.js";
 
 // import bcrypt from "bcrypt";
 // import adminDB from './models/adminModel.js'
@@ -50,7 +50,7 @@ connectDB();
 //*  ROUTES   *//
 app.use("/", userRouter);
 app.use("/admin", adminRouter);
-app.use("/docter", docterRouter);
+app.use("/doctor", doctorRouter);
 
 //*Port Connect *//
 app.listen(
