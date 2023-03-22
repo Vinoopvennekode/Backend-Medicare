@@ -1,14 +1,16 @@
-import express from "express";
-import dotenv from "dotenv";
+/* eslint-disable import/extensions */
+import express from 'express';
+import dotenv from 'dotenv';
+import cors from 'cors';
+import session from 'express-session';
+import morgan from 'morgan';
+import bodyParser from 'body-parser';
+import connectDB from './config/connectDB.js';
+import userRouter from './routes/user.js';
+import adminRouter from './routes/admin.js';
+import doctorRouter from './routes/doctor.js';
+
 dotenv.config();
-import cors from "cors";
-import session from "express-session";
-import morgan from "morgan";
-import connectDB from "./config/connectDB.js";
-import bodyParser from "body-parser";
-import userRouter from "./routes/user.js";
-import adminRouter from "./routes/admin.js";
-import doctorRouter from "./routes/doctor.js";
 
 // import bcrypt from "bcrypt";
 // import adminDB from './models/adminModel.js'
@@ -16,18 +18,18 @@ import doctorRouter from "./routes/doctor.js";
 //*  CONFIGURATION *//
 const app = express();
 app.use(express.json());
-app.use(morgan("dev"));
+app.use(morgan('dev'));
 app.use(
   session({
-    secret: "ttt",
+    secret: 'ttt',
     resave: true,
     saveUninitialized: true,
     cookie: { maxAge: 600000 },
-  })
+  }),
 );
 
-app.use(bodyParser.json({ limit: "30mb", extended: true }));
-app.use(express.urlencoded({ limit: "30mb", extended: true }));
+app.use(bodyParser.json({ limit: '30mb', extended: true }));
+app.use(express.urlencoded({ limit: '30mb', extended: true }));
 app.use(cors());
 
 //* Database *//
@@ -48,12 +50,12 @@ connectDB();
 //  addadmin()
 
 //*  ROUTES   *//
-app.use("/", userRouter);
-app.use("/admin", adminRouter);
-app.use("/doctor", doctorRouter);
+app.use('/', userRouter);
+app.use('/admin', adminRouter);
+app.use('/doctor', doctorRouter);
 
-//*Port Connect *//
+//* Port Connect *//
 app.listen(
   process.env.PORT,
-  console.log(`server connected in ${process.env.PORT}`)
+  console.log(`server connected in ${process.env.PORT}`),
 );

@@ -1,31 +1,33 @@
-import AdminModel from "../models/adminModel.js";
-import UserModel from "../models/user.js";
-import specialityModel from "../models/specialityModel.js";
-import DoctorModel from "../models/DoctorModel.js";
-import bcrypt from "bcrypt";
-import jwt from "../utils/jwt.js";
+/* eslint-disable no-underscore-dangle */
+/* eslint-disable consistent-return */
+/* eslint-disable import/extensions */
+/* eslint-disable radix */
+import bcrypt from 'bcrypt';
+import AdminModel from '../models/adminModel.js';
+import UserModel from '../models/user.js';
+import SpecialityModel from '../models/specialityModel.js';
+import DoctorModel from '../models/DoctorModel.js';
+import jwt from '../utils/jwt.js';
 import {
-  AppoinmentModel,
   userAppoinmentModel,
-} from "../models/AppoinmentModel.js";
+} from '../models/AppoinmentModel.js';
 
 const AdminLogin = async (req, res) => {
   try {
-    let adminResult = {
+    const adminResult = {
       Status: false,
       message: null,
       token: null,
     };
 
-    let adminDetails = req.body;
+    const adminDetails = req.body;
     if (adminDetails.email && adminDetails.password) {
       const admin = await AdminModel.findOne({ email: adminDetails.email });
 
-   
       if (admin) {
         const isMatch = await bcrypt.compare(
           adminDetails.password,
-          admin.password
+          admin.password,
         );
 
         if (isMatch) {
@@ -34,15 +36,15 @@ const AdminLogin = async (req, res) => {
           adminResult.token = token;
           res.json({ adminResult });
         } else {
-          adminResult.message = "Your Password not matched";
+          adminResult.message = 'Your Password not matched';
           res.json({ adminResult });
         }
       } else {
-        adminResult.message = "Your email is wrong";
+        adminResult.message = 'Your email is wrong';
         res.json({ adminResult });
       }
     } else {
-      adminResult.message = "fill all column";
+      adminResult.message = 'fill all column';
       res.json({ adminResult });
     }
   } catch (error) {
@@ -64,9 +66,9 @@ const getusers = async (req, res) => {
         totalPages: Math.ceil((await UserModel.countDocuments()) / limit),
       });
     } else {
-      let messages = "users not exist";
+      const messages = 'users not exist';
+      res.json({ messages });
     }
-
   } catch (error) {
     res.json({ error });
   }
@@ -74,26 +76,25 @@ const getusers = async (req, res) => {
 
 const speciality = async (req, res) => {
   try {
-   
     const { name, description, deptImg } = req.body;
-   
+
     if (name && description && deptImg) {
-      const regex = new RegExp(name, "i");
-      const speciality = await specialityModel.find({
+      const regex = new RegExp(name, 'i');
+      const isSpeciality = await SpecialityModel.find({
         name: { $regex: regex },
       });
-   
-      if (speciality.length === 0) {
-        const newSpeciality = new specialityModel({
-          name: name,
-          description: description,
-          deptImg: deptImg,
+
+      if (isSpeciality.length === 0) {
+        const newSpeciality = new SpecialityModel({
+          name,
+          description,
+          deptImg,
         });
         await newSpeciality.save();
-        let message = "succuss";
+        const message = 'succuss';
         res.json({ message, status: true });
       } else {
-        let message = "speciality already exist";
+        const message = 'speciality already exist';
         res.json({ message });
       }
     }
@@ -106,8 +107,8 @@ const getSpeciality = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 4;
-   
-    const departments = await specialityModel
+
+    const departments = await SpecialityModel
       .find()
       .skip((page - 1) * limit)
       .limit(limit);
@@ -115,12 +116,12 @@ const getSpeciality = async (req, res) => {
       res.json({
         departments,
         currentPage: page,
-        totalPages: Math.ceil((await specialityModel.countDocuments()) / limit),
+        totalPages: Math.ceil((await SpecialityModel.countDocuments()) / limit),
       });
     } else {
-      let messages = "users not exist";
+      const messages = 'users not exist';
+      res.json({ messages });
     }
-  
   } catch (error) {
     res.json({ error });
   }
@@ -128,18 +129,16 @@ const getSpeciality = async (req, res) => {
 
 const editDept = async (req, res) => {
   try {
-
     const dept = req.body.data;
-    specialityModel
+    SpecialityModel
       .findByIdAndUpdate(req.body.id, {
         name: dept.name,
         description: dept.description,
         deptImg: dept.deptImg,
         status: dept.status,
       })
-      .then((data) => {
-        
-        res.json({ message: "successfully updated " });
+      .then(() => {
+        res.json({ message: 'successfully updated ' });
       });
   } catch (error) {
     res.json({ error });
@@ -148,11 +147,11 @@ const editDept = async (req, res) => {
 
 const viewSpeciality = async (req, res) => {
   try {
-    const department = await specialityModel.findById(req.body.id);
+    const department = await SpecialityModel.findById(req.body.id);
     if (department) {
-      res.json({ department, message: "succuss" });
+      res.json({ department, message: 'succuss' });
     } else {
-      res.json({ message: "departmet failed" });
+      res.json({ message: 'departmet failed' });
     }
   } catch (error) {
     res.json({ error });
@@ -161,11 +160,10 @@ const viewSpeciality = async (req, res) => {
 
 const blockUser = async (req, res) => {
   try {
-   
     const client = await UserModel.findByIdAndUpdate(req.body.id, {
       block: true,
     });
-   
+
     if (client) {
       res
         .status(201)
@@ -182,11 +180,10 @@ const blockUser = async (req, res) => {
 
 const unblockUser = async (req, res) => {
   try {
-    
     const client = await UserModel.findByIdAndUpdate(req.body.id, {
       block: false,
     });
- 
+
     if (client) {
       res
         .status(201)
@@ -208,21 +205,22 @@ const getDoctors = async (req, res) => {
     const query = {
       status: true,
     };
-    
+
     const doctor = await DoctorModel.find(query)
       .skip((page - 1) * limit)
       .limit(limit);
-   
+
     if (doctor.length) {
       res.json({
         doctor,
         currentPage: page,
         totalPages: Math.ceil(
-          (await DoctorModel.countDocuments(query)) / limit
+          (await DoctorModel.countDocuments(query)) / limit,
         ),
       });
     } else {
-      let messages = "doctors not exist";
+      const messages = 'doctors not exist';
+      res.json({ messages });
     }
   } catch (error) {
     res.json({ error });
@@ -234,23 +232,23 @@ const Appoinments = async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 4;
 
-  
     const appoinments = await userAppoinmentModel
       .find()
-      .populate("user")
+      .populate('user')
       .skip((page - 1) * limit)
       .limit(limit);
-   
+
     if (appoinments.length) {
       res.json({
         appoinments,
         currentPage: page,
         totalPages: Math.ceil(
-          (await userAppoinmentModel.countDocuments()) / limit
+          (await userAppoinmentModel.countDocuments()) / limit,
         ),
       });
     } else {
-      let messages = "appoinments not exist";
+      const messages = 'appoinments not exist';
+      res.json({ messages });
     }
   } catch (error) {
     res.json({ error });
@@ -259,11 +257,10 @@ const Appoinments = async (req, res) => {
 
 const blockDoctor = async (req, res) => {
   try {
-    
     const doctor = await DoctorModel.findByIdAndUpdate(req.body.id, {
       block: true,
     });
-   
+
     if (doctor) {
       res
         .status(201)
@@ -280,11 +277,10 @@ const blockDoctor = async (req, res) => {
 
 const unblockDoctor = async (req, res) => {
   try {
-  
     const doctor = await DoctorModel.findByIdAndUpdate(req.body.id, {
       block: false,
     });
-   
+
     if (doctor) {
       res
         .status(201)
@@ -305,7 +301,8 @@ const DoctorPending = async (req, res) => {
     if (doctor) {
       res.json({ doctor });
     } else {
-      let messages = "doctors not exist";
+      const messages = 'doctors not exist';
+      res.json({ messages });
     }
   } catch (error) {
     res.json({ error });
@@ -316,7 +313,7 @@ const approveDoctor = async (req, res) => {
   try {
     const doctor = await DoctorModel.findByIdAndUpdate(req.body.id, {
       status: true,
-      doctorStatus: "active",
+      doctorStatus: 'active',
     });
 
     if (doctor) {
@@ -333,7 +330,7 @@ const rejectDoctor = async (req, res) => {
   try {
     const doctor = await DoctorModel.findByIdAndUpdate(req.body.id, {
       status: true,
-      doctorStatus: "reject",
+      doctorStatus: 'reject',
       rejectReason: req.body.data,
     });
 
@@ -349,7 +346,7 @@ const rejectDoctor = async (req, res) => {
 
 const deleteDepartment = async (req, res) => {
   try {
-    await specialityModel.findByIdAndRemove(req.query.id).then((department) => {
+    await SpecialityModel.findByIdAndRemove(req.query.id).then((department) => {
       if (department) {
         res.status(201).send({
           message: `${department.department} Department deleted`,
