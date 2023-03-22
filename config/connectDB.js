@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 
 const connectDB = async () => {
-  mongoose.connect(process.env.MONGODB_CONNECT).then(() => {
+  mongoose.connect(process.env.MONGODB_CONNECT_online).then(() => {
     console.log('mongdb connected');
   })
 

@@ -11,10 +11,10 @@ import UserModel from "../models/user.js";
 const doctorSignup = async (req, res) => {
   try {
     const { firstName, lastName, email, password } = req.body;
-    console.log(req.body);
+    
     if (firstName && lastName && email && password) {
       const doctor = await DoctorModel.find({ email: email });
-      console.log(doctor);
+      
 
       if (doctor.length === 0) {
         const token = jwt.generateToken(doctor._id);
@@ -77,6 +77,7 @@ const doctorRegister = async (req, res) => {
       doctorimg &&
       doctorId
     ) {
+      
       const docId = doctorId.doctorId;
       const doctor = await DoctorModel.findByIdAndUpdate(docId, {
         $set: {
@@ -102,7 +103,7 @@ const doctorRegister = async (req, res) => {
       res.json({ message });
     }
   } catch (error) {
-    console.log(error);
+   
     res.json({ error });
   }
 };
@@ -117,11 +118,11 @@ const doctorLogin = async (req, res) => {
   };
   try {
     const doctorDetails = req.body;
-    console.log(req.body);
+   
     const findDoctor = await DoctorModel.findOne({
       email: doctorDetails.email,
     });
-    console.log(findDoctor);
+  
     if (findDoctor) {
       const isMatch = await bcrypt.compare(
         doctorDetails.password,
@@ -129,7 +130,7 @@ const doctorLogin = async (req, res) => {
       );
       if (isMatch === true) {
         const token = jwt.generateToken(findDoctor._id);
-        console.log(token, "tooeekekekenn");
+        
         doctorLogin.message = "You are logged";
         doctorLogin.Status = true;
         doctorLogin.token = token;
@@ -142,7 +143,7 @@ const doctorLogin = async (req, res) => {
         res.send({ doctorLogin });
       }
     } else {
-      console.log("email wrong");
+    
       doctorLogin.message = "your Email wrong";
       doctorLogin.Status = false;
       res.send({ doctorLogin });
@@ -154,7 +155,7 @@ const doctorLogin = async (req, res) => {
 
 const StatusChecking = async (req, res) => {
   try {
-    console.log(req.query);
+   
     const doctor = await DoctorModel.findById(req.query.id);
     let doctorStatus;
     if (doctor.doctorStatus === "pending") {
@@ -171,7 +172,7 @@ const StatusChecking = async (req, res) => {
     }
     res.status(201).send({ doctor, doctorStatus, success: true });
   } catch (error) {
-    console.log(error);
+   
     res.status(500).send({
       success: false,
       message: `checkDoctorStatus controller ${error.message}`,
@@ -181,11 +182,11 @@ const StatusChecking = async (req, res) => {
 
 const leaveDays = async (req, res) => {
   try {
-    console.log(req.body);
+   
 
     const { start, end } = req.body.data;
     const { id } = req.body.id;
-    console.log("1");
+    
 
     const doc = await DoctorModel.findByIdAndUpdate(
       { _id: id },
@@ -193,8 +194,7 @@ const leaveDays = async (req, res) => {
         $push: { availableDay: { day: "mon", start: start, end: end } },
       }
     );
-    console.log(doc, "hellooo");
-    console.log("2");
+  
   } catch (error) {
     res.json(error);
   }
@@ -202,12 +202,12 @@ const leaveDays = async (req, res) => {
 
 const timeSlots = async (req, res) => {
   try {
-    console.log("++++++////", req.query);
+    
     const app = await AppoinmentModel.findOne({ doctor: req.query.id });
     const exist = app.appoinments.find((el) => el.day === req.query.day);
     if (exist) {
       const time = exist.time;
-      console.log(time);
+     
       res.json({ time });
     } else {
       res.json({ time: [], message: "time not available" });
@@ -221,7 +221,7 @@ const getAppoinments = async (req, res) => {
   try {
     const { id, date, timeStart } = req.body;
     const dat = moment(date).format("MMM Do YYYY");
-    console.log(id, dat, timeStart);
+
     const appoinments = await userAppoinmentModel
       .find({
         doctor: id,
@@ -255,7 +255,7 @@ const allotedTime = async (req, res) => {
     const usereee = await UserModel.findByIdAndUpdate(userId, {
       notifications,
     });
-    console.log(usereee);
+
     res.json({ message: "done" });
   } catch (error) {
     res.json(error);
@@ -269,7 +269,7 @@ const deleteAccount = async (req, res) => {
       const deleteAccount = await DoctorModel.findByIdAndDelete({
         _id: id,
       }).then((res) => {
-        console.log(res);
+      
       });
 
       res.json({ success: true, message: "account deleted from database" });
@@ -282,9 +282,9 @@ const deleteAccount = async (req, res) => {
 };
 const getProfile = async (req, res) => {
   const id = req.body.data;
-  console.log(id, "isddddd");
+  
   const doctor = await DoctorModel.findOne({ _id: id });
-  console.log(doctor);
+  
   res.json({ doctor });
 };
 
@@ -302,7 +302,7 @@ const updateProfile = async (req, res) => {
     doctorId,
     doctorimg,
   } = req.body;
-  console.log(req.body, "req booodydyyyyyy");
+  
   try {
     const doctor = await DoctorModel.findByIdAndUpdate(doctorId, {
       $set: {
@@ -323,7 +323,7 @@ const updateProfile = async (req, res) => {
       res.json({ message });
     }
   } catch (error) {
-    console.log(error);
+  
     res.json({ error });
   }
 };
@@ -333,7 +333,7 @@ const appoinmentHistory = async (req, res) => {
     const { date, id } = req.body;
     const dat = moment(date).format("MMM Do YYYY");
 
-    console.log(req.body);
+  
     const appoinments = await userAppoinmentModel
       .find({
         doctor: id,
@@ -350,7 +350,7 @@ const appoinmentHistory = async (req, res) => {
 
 const checked = async (req, res) => {
   try {
-    console.log(req.body)
+  
     const id=req.body.data
     const checked = await userAppoinmentModel.findByIdAndUpdate(id, {
       status: "checked",

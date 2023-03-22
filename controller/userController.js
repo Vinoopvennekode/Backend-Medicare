@@ -136,7 +136,7 @@ const userLogin = async (req, res) => {
       );
       if (isMatch === true) {
         const token = jwt.generateToken(findUser._id);
-        console.log(findUser);
+      
         userLogin.message = "You are logged";
         userLogin.Status = true;
         userLogin.token = token;
@@ -312,7 +312,7 @@ const getDoctor = async (req, res) => {
       status: true,
     };
     if (searchData !== "") {
-      // query.department = { $regex: new RegExp(`^${searchData}.*`, "i") };
+      // query.firstName = { $regex: new RegExp(`^${searchData}.*`, "i") };
       query.location = { $regex: new RegExp(`^${searchData}.*`, "i") };
     }
     if (department === "All") {

@@ -16,8 +16,7 @@ export function sendsms(phone) {
 }
 
 export function verifysms(phone, otp) {
-  console.log(phone,'phone');
-  console.log(otp,'otp');
+ 
   return new Promise((resolve, reject) => {
     client.verify.v2
       .services(serviceID)

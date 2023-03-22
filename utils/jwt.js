@@ -5,7 +5,7 @@ const generateToken = (userId) => {
     const token = jwt.sign({ id: userId }, process.env.JWT_SECRET);
     return token;
   } catch (error) {
-    console.log(error);
+    
   }
 };
 
@@ -13,7 +13,7 @@ const verifyToken = (req, res, next) => {
   try {
     // const authHeader = req.headers["Authorization"];
     const token = req.headers["authorization"];
-    console.log(token,'jwt token');
+    
     // const token = authHeader && authHeader.split(" ")[1];
 
     if (!token ) return res.json({status:'failed'});
@@ -24,14 +24,14 @@ const verifyToken = (req, res, next) => {
       next();
     });
   } catch (error) {
-    console.log(error);
+   
   }
 };
 
 const jwtAdmin = async (req, res, next) => {
   try {
     const token = req.headers["a-access-token"];
-    console.log(token);
+   
     if (!token) {
       res.send({ status: "failed", message: "You need token" });
     } else {

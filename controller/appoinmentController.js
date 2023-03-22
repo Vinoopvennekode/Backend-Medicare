@@ -8,7 +8,6 @@ import DoctorModel from '../models/DoctorModel.js';
 const DRappoinment = async (req, res) => {
   try {
     const { day, start, end } = req.body.data;
-    console.log(req.body);
     const { id } = req.body;
     if (day && start && end) {
       const doc = await AppoinmentModel.findOne({ doctor: id });
@@ -44,14 +43,14 @@ const DRappoinment = async (req, res) => {
       res.json({ status: 'done' });
     }
   } catch (error) {
-    console.log(error);
+  
     res.json({ error });
   }
 };
 
 const viewAppoinment = async (req, res) => {
   try {
-    console.log(req.body);
+
     const doctorId = req.body.data;
     const appoinment = await AppoinmentModel.findOne({ doctor: doctorId });
     const app = appoinment.appoinments;
@@ -64,9 +63,9 @@ const viewAppoinment = async (req, res) => {
 const deleteAppoinment = async (req, res) => {
   try {
     const { id, doctor } = req.query;
-    console.log(id, doctor);
+    
     const data = await AppoinmentModel.findOne({ doctor });
-    console.log(data);
+    
     if (!data) {
     } else {
       data.appoinments.forEach((day) => {

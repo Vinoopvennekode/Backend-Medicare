@@ -21,7 +21,7 @@ const AdminLogin = async (req, res) => {
     if (adminDetails.email && adminDetails.password) {
       const admin = await AdminModel.findOne({ email: adminDetails.email });
 
-      console.log(admin);
+   
       if (admin) {
         const isMatch = await bcrypt.compare(
           adminDetails.password,
@@ -66,7 +66,7 @@ const getusers = async (req, res) => {
     } else {
       let messages = "users not exist";
     }
-    console.log(users);
+
   } catch (error) {
     res.json({ error });
   }
@@ -74,14 +74,15 @@ const getusers = async (req, res) => {
 
 const speciality = async (req, res) => {
   try {
-    console.log("okkkkk");
+   
     const { name, description, deptImg } = req.body;
+   
     if (name && description && deptImg) {
       const regex = new RegExp(name, "i");
       const speciality = await specialityModel.find({
         name: { $regex: regex },
       });
-      console.log(speciality);
+   
       if (speciality.length === 0) {
         const newSpeciality = new specialityModel({
           name: name,
@@ -105,7 +106,7 @@ const getSpeciality = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 4;
-    console.log(page, "paaaageeeeeeee");
+   
     const departments = await specialityModel
       .find()
       .skip((page - 1) * limit)
@@ -119,7 +120,7 @@ const getSpeciality = async (req, res) => {
     } else {
       let messages = "users not exist";
     }
-    // console.log(departments);
+  
   } catch (error) {
     res.json({ error });
   }
@@ -127,9 +128,9 @@ const getSpeciality = async (req, res) => {
 
 const editDept = async (req, res) => {
   try {
-    console.log(req.body);
+
     const dept = req.body.data;
-    await specialityModel
+    specialityModel
       .findByIdAndUpdate(req.body.id, {
         name: dept.name,
         description: dept.description,
@@ -137,7 +138,7 @@ const editDept = async (req, res) => {
         status: dept.status,
       })
       .then((data) => {
-        console.log(data);
+        
         res.json({ message: "successfully updated " });
       });
   } catch (error) {
@@ -160,11 +161,11 @@ const viewSpeciality = async (req, res) => {
 
 const blockUser = async (req, res) => {
   try {
-    console.log(req.body);
+   
     const client = await UserModel.findByIdAndUpdate(req.body.id, {
       block: true,
     });
-    console.log(client.block);
+   
     if (client) {
       res
         .status(201)
@@ -181,11 +182,11 @@ const blockUser = async (req, res) => {
 
 const unblockUser = async (req, res) => {
   try {
-    console.log(req.body);
+    
     const client = await UserModel.findByIdAndUpdate(req.body.id, {
       block: false,
     });
-    console.log(client.block);
+ 
     if (client) {
       res
         .status(201)
@@ -207,11 +208,11 @@ const getDoctors = async (req, res) => {
     const query = {
       status: true,
     };
-    console.log(page, "paagggeeeee  ");
+    
     const doctor = await DoctorModel.find(query)
       .skip((page - 1) * limit)
       .limit(limit);
-    console.log(doctor);
+   
     if (doctor.length) {
       res.json({
         doctor,
@@ -233,12 +234,13 @@ const Appoinments = async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 4;
 
-    console.log(page, "paagggeeeee  ");
+  
     const appoinments = await userAppoinmentModel
-      .find().populate('user')
+      .find()
+      .populate("user")
       .skip((page - 1) * limit)
-      .limit(limit)
-    console.log(appoinments);
+      .limit(limit);
+   
     if (appoinments.length) {
       res.json({
         appoinments,
@@ -257,12 +259,11 @@ const Appoinments = async (req, res) => {
 
 const blockDoctor = async (req, res) => {
   try {
-    console.log("okkkkkkkkkkkkkkkk");
-    console.log("hii" + req.body);
+    
     const doctor = await DoctorModel.findByIdAndUpdate(req.body.id, {
       block: true,
     });
-    console.log("hai" + doctor);
+   
     if (doctor) {
       res
         .status(201)
@@ -279,11 +280,11 @@ const blockDoctor = async (req, res) => {
 
 const unblockDoctor = async (req, res) => {
   try {
-    console.log(req.body, "boodyyy");
+  
     const doctor = await DoctorModel.findByIdAndUpdate(req.body.id, {
       block: false,
     });
-    console.log(doctor.block);
+   
     if (doctor) {
       res
         .status(201)
@@ -306,7 +307,6 @@ const DoctorPending = async (req, res) => {
     } else {
       let messages = "doctors not exist";
     }
-    console.log(doctor);
   } catch (error) {
     res.json({ error });
   }
@@ -363,7 +363,6 @@ const deleteDepartment = async (req, res) => {
       }
     });
   } catch (error) {
-    console.log(error);
     res.status(500).send({
       success: false,
       message: `deleteDepartments controller ${error.message}`,
