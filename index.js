@@ -33,19 +33,19 @@ app.use(cors());
 //* Database *//
 connectDB();
 
-const addadmin =  async() => {
-let password = "123456"
+// const addadmin =  async() => {
+// let password = "123456"
 
-let salt = await bcrypt.genSalt(10)
-let pass = await bcrypt.hash(password, salt)
-let email = "admin@gmail.com"
- await adminDB.insertMany({
-    email:email,
-    password:pass,
+// let salt = await bcrypt.genSalt(10)
+// let pass = await bcrypt.hash(password, salt)
+// let email = "admin@gmail.com"
+//  await adminDB.insertMany({
+//     email:email,
+//     password:pass,
 
-  })
-}
- addadmin()
+//   })
+// }
+//  addadmin()
 
 //*  ROUTES   *//
 app.use("/", userRouter);
