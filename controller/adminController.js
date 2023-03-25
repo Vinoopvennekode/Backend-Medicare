@@ -2,15 +2,16 @@
 /* eslint-disable consistent-return */
 /* eslint-disable import/extensions */
 /* eslint-disable radix */
-import bcrypt from 'bcrypt';
-import AdminModel from '../models/adminModel.js';
-import UserModel from '../models/user.js';
-import SpecialityModel from '../models/specialityModel.js';
-import DoctorModel from '../models/DoctorModel.js';
-import jwt from '../utils/jwt.js';
+import bcrypt from "bcrypt";
+import AdminModel from "../models/adminModel.js";
+import UserModel from "../models/user.js";
+import SpecialityModel from "../models/specialityModel.js";
+import DoctorModel from "../models/DoctorModel.js";
+import jwt from "../utils/jwt.js";
 import {
   userAppoinmentModel,
-} from '../models/AppoinmentModel.js';
+  AppoinmentModel,
+} from "../models/AppoinmentModel.js";
 
 const AdminLogin = async (req, res) => {
   try {
@@ -27,7 +28,7 @@ const AdminLogin = async (req, res) => {
       if (admin) {
         const isMatch = await bcrypt.compare(
           adminDetails.password,
-          admin.password,
+          admin.password
         );
 
         if (isMatch) {
@@ -36,15 +37,15 @@ const AdminLogin = async (req, res) => {
           adminResult.token = token;
           res.json({ adminResult });
         } else {
-          adminResult.message = 'Your Password not matched';
+          adminResult.message = "Your Password not matched";
           res.json({ adminResult });
         }
       } else {
-        adminResult.message = 'Your email is wrong';
+        adminResult.message = "Your email is wrong";
         res.json({ adminResult });
       }
     } else {
-      adminResult.message = 'fill all column';
+      adminResult.message = "fill all column";
       res.json({ adminResult });
     }
   } catch (error) {
@@ -66,7 +67,7 @@ const getusers = async (req, res) => {
         totalPages: Math.ceil((await UserModel.countDocuments()) / limit),
       });
     } else {
-      const messages = 'users not exist';
+      const messages = "users not exist";
       res.json({ messages });
     }
   } catch (error) {
@@ -79,7 +80,7 @@ const speciality = async (req, res) => {
     const { name, description, deptImg } = req.body;
 
     if (name && description && deptImg) {
-      const regex = new RegExp(name, 'i');
+      const regex = new RegExp(name, "i");
       const isSpeciality = await SpecialityModel.find({
         name: { $regex: regex },
       });
@@ -91,10 +92,10 @@ const speciality = async (req, res) => {
           deptImg,
         });
         await newSpeciality.save();
-        const message = 'succuss';
+        const message = "succuss";
         res.json({ message, status: true });
       } else {
-        const message = 'speciality already exist';
+        const message = "speciality already exist";
         res.json({ message });
       }
     }
@@ -108,8 +109,7 @@ const getSpeciality = async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 4;
 
-    const departments = await SpecialityModel
-      .find()
+    const departments = await SpecialityModel.find()
       .skip((page - 1) * limit)
       .limit(limit);
     if (departments) {
@@ -119,7 +119,7 @@ const getSpeciality = async (req, res) => {
         totalPages: Math.ceil((await SpecialityModel.countDocuments()) / limit),
       });
     } else {
-      const messages = 'users not exist';
+      const messages = "users not exist";
       res.json({ messages });
     }
   } catch (error) {
@@ -130,16 +130,14 @@ const getSpeciality = async (req, res) => {
 const editDept = async (req, res) => {
   try {
     const dept = req.body.data;
-    SpecialityModel
-      .findByIdAndUpdate(req.body.id, {
-        name: dept.name,
-        description: dept.description,
-        deptImg: dept.deptImg,
-        status: dept.status,
-      })
-      .then(() => {
-        res.json({ message: 'successfully updated ' });
-      });
+    SpecialityModel.findByIdAndUpdate(req.body.id, {
+      name: dept.name,
+      description: dept.description,
+      deptImg: dept.deptImg,
+      status: dept.status,
+    }).then(() => {
+      res.json({ message: "successfully updated " });
+    });
   } catch (error) {
     res.json({ error });
   }
@@ -149,9 +147,9 @@ const viewSpeciality = async (req, res) => {
   try {
     const department = await SpecialityModel.findById(req.body.id);
     if (department) {
-      res.json({ department, message: 'succuss' });
+      res.json({ department, message: "succuss" });
     } else {
-      res.json({ message: 'departmet failed' });
+      res.json({ message: "departmet failed" });
     }
   } catch (error) {
     res.json({ error });
@@ -215,11 +213,11 @@ const getDoctors = async (req, res) => {
         doctor,
         currentPage: page,
         totalPages: Math.ceil(
-          (await DoctorModel.countDocuments(query)) / limit,
+          (await DoctorModel.countDocuments(query)) / limit
         ),
       });
     } else {
-      const messages = 'doctors not exist';
+      const messages = "doctors not exist";
       res.json({ messages });
     }
   } catch (error) {
@@ -234,7 +232,7 @@ const Appoinments = async (req, res) => {
 
     const appoinments = await userAppoinmentModel
       .find()
-      .populate('user')
+      .populate("user")
       .skip((page - 1) * limit)
       .limit(limit);
 
@@ -243,11 +241,11 @@ const Appoinments = async (req, res) => {
         appoinments,
         currentPage: page,
         totalPages: Math.ceil(
-          (await userAppoinmentModel.countDocuments()) / limit,
+          (await userAppoinmentModel.countDocuments()) / limit
         ),
       });
     } else {
-      const messages = 'appoinments not exist';
+      const messages = "appoinments not exist";
       res.json({ messages });
     }
   } catch (error) {
@@ -301,7 +299,7 @@ const DoctorPending = async (req, res) => {
     if (doctor) {
       res.json({ doctor });
     } else {
-      const messages = 'doctors not exist';
+      const messages = "doctors not exist";
       res.json({ messages });
     }
   } catch (error) {
@@ -313,7 +311,7 @@ const approveDoctor = async (req, res) => {
   try {
     const doctor = await DoctorModel.findByIdAndUpdate(req.body.id, {
       status: true,
-      doctorStatus: 'active',
+      doctorStatus: "active",
     });
 
     if (doctor) {
@@ -330,7 +328,7 @@ const rejectDoctor = async (req, res) => {
   try {
     const doctor = await DoctorModel.findByIdAndUpdate(req.body.id, {
       status: true,
-      doctorStatus: 'reject',
+      doctorStatus: "reject",
       rejectReason: req.body.data,
     });
 
@@ -367,9 +365,81 @@ const deleteDepartment = async (req, res) => {
   }
 };
 
+const dashboard = async (req, res) => {
+  try {
+    const months = [
+      "January",
+      "February",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December",
+    ];
+    const doctors = await DoctorModel.find({ status: true }).count();
+
+    const users = await UserModel.find().count();
+
+    const doctorPending = await DoctorModel.find({ status: false }).count();
+
+    const departments = await SpecialityModel.find().count();
+
+    const salesReport = await userAppoinmentModel.aggregate([
+      {
+        $match: {
+          status: "checked",
+        },
+      },
+      {
+        $group: {
+          _id: {
+            month: { $month: "$createdAt" },
+            year: { $year: "$createdAt" },
+          },
+          totalSales: {
+            $sum: "$fee",
+          },
+          count: {
+            $sum: 1,
+          },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          month: "$_id.month",
+          year: "$_id.year",
+          count:1,
+          totalSales: 1,
+        },
+      },
+    ]);
+    const newSalesReport = salesReport.map((el) => {
+      let newEl = { ...el };
+      newEl.month = months[newEl.month - 1];
+      return newEl;
+    });
+    console.log(newSalesReport, "sales");
+    res.json({
+      doctors,
+      users,
+      doctorPending,
+      departments,
+      salesReport: newSalesReport,
+    });
+  } catch (error) {
+    res.json({ error });
+  }
+};
+
 export default {
   AdminLogin,
-
+  dashboard,
   getusers,
   speciality,
   getSpeciality,

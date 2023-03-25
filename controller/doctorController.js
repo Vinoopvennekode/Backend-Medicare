@@ -1,4 +1,5 @@
 import DoctorModel from "../models/DoctorModel.js";
+import mongoose from "mongoose";
 import bcrypt from "bcrypt";
 import jwt from "../utils/jwt.js";
 import {
@@ -7,14 +8,14 @@ import {
 } from "../models/AppoinmentModel.js";
 import moment from "moment";
 import UserModel from "../models/user.js";
+import { sendsms, verifysms } from "../config/otpvalidation.js";
 
 const doctorSignup = async (req, res) => {
   try {
     const { firstName, lastName, email, password } = req.body;
-    
+
     if (firstName && lastName && email && password) {
       const doctor = await DoctorModel.find({ email: email });
-      
 
       if (doctor.length === 0) {
         const token = jwt.generateToken(doctor._id);
@@ -77,7 +78,6 @@ const doctorRegister = async (req, res) => {
       doctorimg &&
       doctorId
     ) {
-      
       const docId = doctorId.doctorId;
       const doctor = await DoctorModel.findByIdAndUpdate(docId, {
         $set: {
@@ -103,7 +103,6 @@ const doctorRegister = async (req, res) => {
       res.json({ message });
     }
   } catch (error) {
-   
     res.json({ error });
   }
 };
@@ -118,11 +117,11 @@ const doctorLogin = async (req, res) => {
   };
   try {
     const doctorDetails = req.body;
-   
+
     const findDoctor = await DoctorModel.findOne({
       email: doctorDetails.email,
     });
-  
+
     if (findDoctor) {
       const isMatch = await bcrypt.compare(
         doctorDetails.password,
@@ -130,7 +129,7 @@ const doctorLogin = async (req, res) => {
       );
       if (isMatch === true) {
         const token = jwt.generateToken(findDoctor._id);
-        
+
         doctorLogin.message = "You are logged";
         doctorLogin.Status = true;
         doctorLogin.token = token;
@@ -143,7 +142,6 @@ const doctorLogin = async (req, res) => {
         res.send({ doctorLogin });
       }
     } else {
-    
       doctorLogin.message = "your Email wrong";
       doctorLogin.Status = false;
       res.send({ doctorLogin });
@@ -155,7 +153,6 @@ const doctorLogin = async (req, res) => {
 
 const StatusChecking = async (req, res) => {
   try {
-   
     const doctor = await DoctorModel.findById(req.query.id);
     let doctorStatus;
     if (doctor.doctorStatus === "pending") {
@@ -172,7 +169,6 @@ const StatusChecking = async (req, res) => {
     }
     res.status(201).send({ doctor, doctorStatus, success: true });
   } catch (error) {
-   
     res.status(500).send({
       success: false,
       message: `checkDoctorStatus controller ${error.message}`,
@@ -182,11 +178,8 @@ const StatusChecking = async (req, res) => {
 
 const leaveDays = async (req, res) => {
   try {
-   
-
     const { start, end } = req.body.data;
     const { id } = req.body.id;
-    
 
     const doc = await DoctorModel.findByIdAndUpdate(
       { _id: id },
@@ -194,7 +187,6 @@ const leaveDays = async (req, res) => {
         $push: { availableDay: { day: "mon", start: start, end: end } },
       }
     );
-  
   } catch (error) {
     res.json(error);
   }
@@ -202,12 +194,11 @@ const leaveDays = async (req, res) => {
 
 const timeSlots = async (req, res) => {
   try {
-    
     const app = await AppoinmentModel.findOne({ doctor: req.query.id });
     const exist = app.appoinments.find((el) => el.day === req.query.day);
     if (exist) {
       const time = exist.time;
-     
+
       res.json({ time });
     } else {
       res.json({ time: [], message: "time not available" });
@@ -239,11 +230,12 @@ const allotedTime = async (req, res) => {
   try {
     const { date, doctorId, userId, id, allotedTime } = req.body;
     const day = moment(date).format("MMM Do YY");
+    const doctor = await DoctorModel.findById(doctorId);
     const editAlloted = await userAppoinmentModel.findByIdAndUpdate(id, {
       status: "approved",
       allotedTime: allotedTime,
+      fee: doctor.fees,
     });
-    const doctor = await DoctorModel.findById(doctorId);
 
     const user = await UserModel.findById(userId);
 
@@ -251,6 +243,8 @@ const allotedTime = async (req, res) => {
     notifications.push({
       type: "ApprovedAppoinment",
       message: `${doctor.firstName} ${doctor.lastName} has Approved your booking on ${day} at ${allotedTime} `,
+      fee: doctor.fees,
+      id: id,
     });
     const usereee = await UserModel.findByIdAndUpdate(userId, {
       notifications,
@@ -268,9 +262,7 @@ const deleteAccount = async (req, res) => {
     if (id) {
       const deleteAccount = await DoctorModel.findByIdAndDelete({
         _id: id,
-      }).then((res) => {
-      
-      });
+      }).then((res) => {});
 
       res.json({ success: true, message: "account deleted from database" });
     } else {
@@ -282,9 +274,9 @@ const deleteAccount = async (req, res) => {
 };
 const getProfile = async (req, res) => {
   const id = req.body.data;
-  
+
   const doctor = await DoctorModel.findOne({ _id: id });
-  
+
   res.json({ doctor });
 };
 
@@ -302,7 +294,7 @@ const updateProfile = async (req, res) => {
     doctorId,
     doctorimg,
   } = req.body;
-  
+
   try {
     const doctor = await DoctorModel.findByIdAndUpdate(doctorId, {
       $set: {
@@ -323,7 +315,6 @@ const updateProfile = async (req, res) => {
       res.json({ message });
     }
   } catch (error) {
-  
     res.json({ error });
   }
 };
@@ -333,7 +324,6 @@ const appoinmentHistory = async (req, res) => {
     const { date, id } = req.body;
     const dat = moment(date).format("MMM Do YYYY");
 
-  
     const appoinments = await userAppoinmentModel
       .find({
         doctor: id,
@@ -344,18 +334,164 @@ const appoinmentHistory = async (req, res) => {
 
     res.json({ appoinments });
   } catch (error) {
-    res.json({error})
+    res.json({ error });
   }
 };
 
 const checked = async (req, res) => {
   try {
-  
-    const id=req.body.data
+    const id = req.body.data;
     const checked = await userAppoinmentModel.findByIdAndUpdate(id, {
       status: "checked",
     });
-    res.json({message:'checked'})
+    res.json({ message: "checked" });
+  } catch (error) {
+    res.json({ error });
+  }
+};
+
+const NumberCheck = async (req, res, next) => {
+  try {
+    console.log(req.body);
+    const { phoneNumber } = req.body;
+    const data = await DoctorModel.find({ phoneNumber: phoneNumber });
+    if (data.length) {
+      res.json({ status: true });
+      sendsms(phoneNumber);
+    } else {
+      res.json({ status: "failed", message: "Phone Number not Exisit" });
+    }
+  } catch (error) {
+    next(error);
+  }
+};
+
+const setNewPassword = async (req, res, next) => {
+  try {
+    const { password, confPassword, phoneNumber } = req.body;
+    if (password && confPassword && phoneNumber) {
+      const salt = await bcrypt.genSalt(10);
+      const hashPassword = await bcrypt.hash(password.trim(), salt);
+      await DoctorModel.findOneAndUpdate(
+        { phoneNumber: phoneNumber },
+        {
+          $set: { password: hashPassword },
+        }
+      );
+      res.json({ status: true });
+    } else {
+      res.json({ status: "failed", message: "Please Retry" });
+    }
+  } catch (error) {
+    next(error);
+  }
+};
+const forgotOtpVerify = async (req, res) => {
+  try {
+    const { otp, phone } = req.body.data;
+    await verifysms(phone, otp).then(async (verification_check) => {
+      if (verification_check.status == "approved") {
+        res.json({ status: true, message: "signup success" });
+      } else {
+        res.json({ message: "otp does not match" });
+      }
+    });
+  } catch (error) {
+    res.json(error);
+  }
+};
+
+const cancelAppoinment = async (req, res) => {
+  try {
+    console.log(req.body, "body");
+    const id = req.body.data;
+    const cancel = await userAppoinmentModel.findByIdAndUpdate(id, {
+      status: "canceled",
+    });
+    res.json({ status: "canceled" });
+    console.log(cancel);
+  } catch (error) {
+    res.json({ error });
+  }
+};
+
+const dashboard = async (req, res) => {
+  try {
+    const months = [
+      "January",
+      "February",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December",
+    ];
+    console.log(req.body);
+    const doctorId = req.body.data;
+    const totalAppoinments = await userAppoinmentModel
+      .find({
+        doctor: doctorId,
+      })
+      .count();
+
+    const pending = await userAppoinmentModel
+      .find({ doctor: doctorId, status: "pending" })
+      .count();
+
+    const canceled = await userAppoinmentModel
+      .find({
+        doctor: doctorId,
+        status: "canceled",
+      })
+      .count();
+
+    const checked = await userAppoinmentModel
+      .find({ doctor: doctorId, status: "checked" })
+      .count();
+
+       const salesReport = await userAppoinmentModel.aggregate([
+      {
+        $match: {
+          doctor: mongoose.Types.ObjectId(doctorId),
+          status: "checked",
+        },
+      },
+      {
+        $group: {
+          _id: {
+            month: { $month: "$createdAt" },
+            year: { $year: "$createdAt" },
+          },
+          totalSales: {
+            $sum: "$fee",
+          },
+          count: {
+            $sum: 1,
+          },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          month: "$_id.month",
+          year: "$_id.year",
+          count:1,
+          totalSales: 1,
+        },
+      },
+    ]);
+    const newSalesReport = salesReport.map((el) => {
+      let newEl = { ...el };
+      newEl.month = months[newEl.month - 1];
+      return newEl;
+    });
+
+    res.json({ totalAppoinments, pending, canceled, checked ,salesReport:newSalesReport});
   } catch (error) {
     res.json({ error });
   }
@@ -374,4 +510,9 @@ export default {
   updateProfile,
   appoinmentHistory,
   checked,
+  cancelAppoinment,
+  setNewPassword,
+  forgotOtpVerify,
+  NumberCheck,
+  dashboard,
 };

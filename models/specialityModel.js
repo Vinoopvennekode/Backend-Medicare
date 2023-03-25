@@ -14,6 +14,8 @@ const specialitySchema = new mongoose.Schema({
     type: String,
     default:'Active'
   },
+}, {
+  timestamps: true,
 });
 
 const specialityModel = mongoose.model("speciality", specialitySchema);

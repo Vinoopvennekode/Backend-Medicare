@@ -69,12 +69,15 @@ const otpVerify = async (req, res) => {
 const NumberCheck = async (req, res, next) => {
   try {
     const { phoneNumber } = req.body;
+    console.log(req.body);
     const data = await UserModel.find({ phone: phoneNumber });
-    if (data.length) {
+    if (data.length === 0) {
+      console.log("1");
+      res.json({ status: false, message: "Phone Number not Exisit" });
+    } else {
+      console.log("2");
       res.json({ status: true });
       sendsms(phoneNumber);
-    } else {
-      res.json({ status: "failed", message: "Phone Number not Exisit" });
     }
   } catch (error) {
     next(error);
@@ -136,7 +139,7 @@ const userLogin = async (req, res) => {
       );
       if (isMatch === true) {
         const token = jwt.generateToken(findUser._id);
-      
+
         userLogin.message = "You are logged";
         userLogin.Status = true;
         userLogin.token = token;
@@ -299,21 +302,40 @@ const notificationDeleteAllRead = async (req, res) => {
   }
 };
 
+const paymentStatus = async (req, res) => {
+  try {
+    console.log(req.body);
+    const id = req.body.data;
+    const payment = await userAppoinmentModel.findByIdAndUpdate(id, {
+      paymentStatus: "done",
+    });
+    res.json({ message: "status changed" });
+  } catch (error) {
+    res.json({ error });
+  }
+};
+
 const getDoctor = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 3;
+    const limit = parseInt(req.query.limit) || 5;
     const sortBy = req.query.sortBy || "createdAt";
     const sortOrder = req.query.sortOrder || "desc";
     const searchData = req.query.searchLocation || "";
     const department = req.query.department || "";
-
+console.log(page,'page');
+console.log(searchData,'searchData');
     const query = {
       status: true,
     };
     if (searchData !== "") {
       // query.firstName = { $regex: new RegExp(`^${searchData}.*`, "i") };
-      query.location = { $regex: new RegExp(`^${searchData}.*`, "i") };
+      // query.location = { $regex: new RegExp(`^${searchData}.*`, "i") };
+      const regex = new RegExp(`^${searchData}.*`, "i");
+      query.$or = [
+        { location: { $regex: regex } },
+        { firstName: { $regex: regex } },
+      ];
     }
     if (department === "All") {
       delete query["department"];
@@ -335,6 +357,17 @@ const getDoctor = async (req, res) => {
     res.json({ error });
   }
 };
+
+const profile = async (req, res) => {
+  try {
+    console.log(req.body);
+    const id = req.body.data;
+    const user = await UserModel.findOne({ _id: id });
+    res.json({ user });
+  } catch (error) {
+    res.json({ error });
+  }
+};
 export default {
   userSignup,
   userLogin,
@@ -351,4 +384,6 @@ export default {
   getAllNotifications,
   notificationMarkAllRead,
   getDoctor,
+  profile,
+  paymentStatus,
 };

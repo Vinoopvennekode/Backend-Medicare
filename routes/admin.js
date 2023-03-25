@@ -6,6 +6,8 @@ const router = express.Router();
 
 router.post("/adminLogin", adminController.AdminLogin);
 
+router.get('/dashboard',jwt.verifyToken,adminController.dashboard)
+
 router.get("/users", jwt.verifyToken, adminController.getusers);
 
 router.post("/speciality", jwt.verifyToken, adminController.speciality);

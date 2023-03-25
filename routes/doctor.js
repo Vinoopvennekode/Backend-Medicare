@@ -38,5 +38,9 @@ router.post('/profile',jwt.verifyToken,doctorController.getProfile)
 router.post('/updateProfile',jwt.verifyToken,doctorController.updateProfile)
 router.post('/appoinmentHistory',jwt.verifyToken,doctorController.appoinmentHistory)
 router.post('/checked',jwt.verifyToken,doctorController.checked)
-
+router.post('/setNewPassword',doctorController.setNewPassword)
+router.post('/forgotOtpVerify',doctorController.forgotOtpVerify)
+router.post('/numberCheck',doctorController.NumberCheck)
+router.post('/dashboard',jwt.verifyToken,doctorController.dashboard)
+router.post('/cancelAppoinment',jwt.verifyToken,doctorController.cancelAppoinment)
 export default router;

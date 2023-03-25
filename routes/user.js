@@ -19,5 +19,6 @@ router.patch('/notificationDeleteAllRead',jwt.verifyToken,userController.notific
 router.patch('/notificationMarkAllRead',jwt.verifyToken,userController.notificationMarkAllRead)
 router.post('/getAllNotifications',jwt.verifyToken,userController.getAllNotifications)
 router.get('/getDoctors/doctors',jwt.verifyToken,userController.getDoctor)
-
+router.post('/profile',jwt.verifyToken,userController.profile)
+router.post('/paymentStatus',jwt.verifyToken,userController.paymentStatus)
 export default router;
