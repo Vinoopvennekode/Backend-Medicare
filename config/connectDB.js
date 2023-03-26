@@ -1,11 +1,13 @@
 import mongoose from 'mongoose';
 
 const connectDB = async () => {
-  mongoose.connect(process.env.MONGODB_CONNECT_online).then(() => {
+  mongoose.connect(process.env.MONGODB_CONNECT).then(() => {
+    // eslint-disable-next-line no-console
     console.log('mongdb connected');
   })
 
     .catch((error) => {
+      // eslint-disable-next-line no-console
       console.log(error.message);
       process.exit();
     });
