@@ -212,8 +212,7 @@ const getAppoinments = async (req, res) => {
   try {
     const { id, date, timeStart } = req.body;
     const dat = moment(date).format("MMM Do YYYY");
-    console.log(dat);
-    console.log(req.body,'boody');
+console.log(dat);
     const appoinments = await userAppoinmentModel
       .find({
         doctor: id,
@@ -221,7 +220,6 @@ const getAppoinments = async (req, res) => {
         timeStart: timeStart,
       })
       .populate("user");
-      console.log(appoinments);
     res.json({ appoinments });
   } catch (error) {
     res.json({ error });
