@@ -129,7 +129,7 @@ const userLogin = async (req, res) => {
   };
   try {
     const userDetails = req.body;
-
+console.log(req.body,'body');
     const findUser = await UserModel.findOne({ email: userDetails.email });
 
     if (findUser) {
@@ -146,6 +146,7 @@ const userLogin = async (req, res) => {
         userLogin.name = findUser.name;
         userLogin.id = findUser._id;
         userLogin.block = findUser.block;
+        console.log(userLogin);
         res.send({ userLogin });
       } else {
         userLogin.message = " Password is wrong";
