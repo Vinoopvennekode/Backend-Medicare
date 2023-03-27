@@ -32,7 +32,7 @@ app.use(bodyParser.json({ limit: '30mb', extended: true }));
 app.use(express.urlencoded({ limit: '30mb', extended: true }));
 app.use(cors());
 app.use((req, res, next) => {
-  res.setHeader("Access-Control-Allow-Origin:*");
+  res.setHeader("Access-Control-Allow-Origin","https://medicarebooking.online");
   res.header(
     "Access-Control-Allow-Headers",
     "Origin, X-Requested-With, Content-Type, Accept"
