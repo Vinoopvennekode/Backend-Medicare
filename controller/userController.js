@@ -131,7 +131,7 @@ const userLogin = async (req, res) => {
     const userDetails = req.body;
 console.log(req.body,'body');
     const findUser = await UserModel.findOne({ email: userDetails.email });
-
+console.log(findUser,'user');
     if (findUser) {
       const isMatch = await bcrypt.compare(
         userDetails.password,
@@ -139,7 +139,7 @@ console.log(req.body,'body');
       );
       if (isMatch === true) {
         const token = jwt.generateToken(findUser._id);
-
+console.log(token,'token');
         userLogin.message = "You are logged";
         userLogin.Status = true;
         userLogin.token = token;
