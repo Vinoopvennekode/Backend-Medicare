@@ -5,7 +5,7 @@ import {
   userAppoinmentModel,
 } from "../models/AppoinmentModel.js";
 
-import bcrypt from "bcrypt";
+import bcrypt from "bcrypt";  
 import jwt from "../utils/jwt.js";
 import DoctorModel from "../models/DoctorModel.js";
 import { sendsms, verifysms } from "../config/otpvalidation.js";
@@ -129,9 +129,7 @@ const userLogin = async (req, res) => {
   };
   try {
     const userDetails = req.body;
-console.log(req.body,'body');
     const findUser = await UserModel.findOne({ email: userDetails.email });
-console.log(findUser,'user');
     if (findUser) {
       const isMatch = await bcrypt.compare(
         userDetails.password,
@@ -139,7 +137,7 @@ console.log(findUser,'user');
       );
       if (isMatch === true) {
         const token = jwt.generateToken(findUser._id);
-console.log(token,'token');
+
         userLogin.message = "You are logged";
         userLogin.Status = true;
         userLogin.token = token;
@@ -177,6 +175,7 @@ const getDoctors = async (req, res) => {
 };
 const departments = async (req, res) => {
   try {
+    console.log('dep123');
     const departments = await specialityModel.find();
     if (departments) {
       res.json({ departments });

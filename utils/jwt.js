@@ -24,7 +24,7 @@ const verifyToken = (req, res, next) => {
       next();
     });
   } catch (error) {
-   
+     
   }
 };
 

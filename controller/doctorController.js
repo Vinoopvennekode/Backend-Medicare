@@ -52,6 +52,7 @@ const doctorSignup = async (req, res) => {
 };
 
 const doctorRegister = async (req, res) => {
+  console.log('first API');
   const {
     gender,
     phoneNumber,
@@ -64,7 +65,8 @@ const doctorRegister = async (req, res) => {
     doctorimg,
     certificate,
   } = req.body;
-
+  
+  console.log(req.body,'req.body');
   try {
     if (
       gender &&
@@ -78,8 +80,8 @@ const doctorRegister = async (req, res) => {
       doctorimg &&
       doctorId
     ) {
-      const docId = doctorId.doctorId;
-      const doctor = await DoctorModel.findByIdAndUpdate(docId, {
+      console.log('second');
+      const doctor = await DoctorModel.findByIdAndUpdate(doctorId, {
         $set: {
           gender,
           phoneNumber,
@@ -94,6 +96,7 @@ const doctorRegister = async (req, res) => {
           doctorStatus: "pending",
         },
       });
+      console.log(doctor,'doctor');
       if (doctor) {
         let message = "success";
         res.json({ message });
